@@ -9,14 +9,11 @@ import {
 } from "@mantine/core";
 import {
   IconSearch,
-  IconMusic,
-  IconFilter,
   IconX,
-  IconSparkles,
+  IconMicrophone,
   IconLayoutGrid,
   IconListDetails,
   IconFolder,
-  IconCheck,
 } from "@tabler/icons-react";
 import { MaterialCard } from "./MaterialCard";
 import { SongCard } from "./SongCard";
@@ -178,7 +175,7 @@ export function MaterialsExplorer({
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 p-3.5 sm:p-4 rounded-2xl bg-[#0c1e38] text-white border border-[#1e3a5f] shadow-sm">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-[#c9a227] text-slate-950 flex items-center justify-center font-black text-base shrink-0 shadow-2xs">
-              🎯
+              <IconMicrophone size={18} />
             </div>
             <div>
               <div className="flex items-center gap-2 flex-wrap">
@@ -208,7 +205,7 @@ export function MaterialsExplorer({
                 onClick={() => toggleOnlyMyVoice(false)}
                 className="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 active:scale-95 text-white text-xs font-bold border border-white/20 transition-all text-center min-h-[44px] flex items-center justify-center gap-1.5"
               >
-                <span>🌟 Ver Todo o Repertório</span>
+                <span>Ver Todo o Repertório</span>
                 <span className="text-[11px] text-slate-300">({allWorks.length})</span>
               </button>
             ) : (
@@ -217,7 +214,8 @@ export function MaterialsExplorer({
                 onClick={() => toggleOnlyMyVoice(true)}
                 className="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-[#c9a227] hover:bg-[#b58f1f] active:scale-95 text-slate-950 text-xs font-black transition-all shadow-sm text-center min-h-[44px] flex items-center justify-center gap-1.5"
               >
-                <span>🎯 Filtrar Meu Naipe</span>
+                <IconMicrophone size={14} />
+                <span>Filtrar Meu Naipe</span>
                 <span className="capitalize font-bold">({currentUserVoice})</span>
               </button>
             )}
@@ -321,14 +319,14 @@ export function MaterialsExplorer({
                 }}
                 radius="md"
                 size="md"
-                leftSection={<IconFilter size={15} className="text-slate-400" />}
+                leftSection={<IconMicrophone size={15} className="text-slate-400" />}
                 data={[
                   { label: "Todos os Naipes", value: "all" },
-                  { label: "🌸 Soprano", value: "soprano" },
-                  { label: "🍇 Contralto", value: "contralto" },
-                  { label: "🔷 Tenor", value: "tenor" },
-                  { label: "🟦 Baixo", value: "baixo" },
-                  { label: "🎵 Barítono", value: "baritono" },
+                  { label: "Soprano", value: "soprano" },
+                  { label: "Contralto", value: "contralto" },
+                  { label: "Tenor", value: "tenor" },
+                  { label: "Baixo", value: "baixo" },
+                  { label: "Barítono", value: "baritono" },
                 ]}
                 styles={{
                   input: {

@@ -3,10 +3,6 @@
 import Link from "next/link";
 import {
   Accordion,
-  Text,
-  Badge,
-  Group,
-  Button,
 } from "@mantine/core";
 import {
   IconFileText,
@@ -15,7 +11,6 @@ import {
 import type { RepertoireWork } from "@/lib/repertoireMetadata";
 import {
   formatVoiceButtonLabel,
-  VOICE_COLORS,
 } from "@/lib/repertoireMetadata";
 
 interface CategoryAccordionViewProps {
@@ -33,14 +28,12 @@ export function CategoryAccordionView({
     {
       id: "natal-2026",
       title: "Especial de Natal 2026",
-      icon: "🎄",
       color: "red",
       works: works.filter((w) => w.category === "natal"),
     },
     {
       id: "missa-agosto",
       title: "Missa de Agosto (Missa Simplex & Cantos Solenes)",
-      icon: "⛪",
       color: "blue",
       works: works.filter(
         (w) => w.category === "missas" && w.subCategory === "Missa de Agosto"
@@ -49,7 +42,6 @@ export function CategoryAccordionView({
     {
       id: "missa-maio",
       title: "Missa de Maio (Ave Maria, Mãos Abertas, Panis Angelicus)",
-      icon: "⛪",
       color: "cyan",
       works: works.filter(
         (w) => w.category === "missas" && w.subCategory === "Missa de Maio"
@@ -58,7 +50,6 @@ export function CategoryAccordionView({
     {
       id: "missa-setembro",
       title: "Missa de Setembro (São Vicente de Paulo)",
-      icon: "⛪",
       color: "indigo",
       works: works.filter(
         (w) => w.category === "missas" && w.subCategory === "Missa de Setembro"
@@ -67,14 +58,12 @@ export function CategoryAccordionView({
     {
       id: "classicos",
       title: "Repertório Clássico & Motetos Sacros",
-      icon: "🎼",
       color: "violet",
       works: works.filter((w) => w.category === "classicos"),
     },
     {
       id: "mpb",
       title: "MPB, Trilha Sonora & Coral Geral",
-      icon: "🎵",
       color: "teal",
       works: works.filter((w) => w.category === "mpb"),
     },
@@ -103,17 +92,14 @@ export function CategoryAccordionView({
         >
           <Accordion.Control className="px-4 py-3 hover:bg-slate-50/70 transition-colors">
             <div className="flex items-center justify-between pr-3">
-              <div className="flex items-center gap-2.5">
-                <span className="text-xl leading-none">{sec.icon}</span>
-                <div className="text-left">
-                  <h4 className="text-sm font-bold text-slate-900 leading-tight">
-                    {sec.title}
-                  </h4>
-                  <p className="text-[11px] text-slate-400 font-medium">
-                    {sec.works.length}{" "}
-                    {sec.works.length === 1 ? "música catalogada" : "músicas catalogadas"}
-                  </p>
-                </div>
+              <div className="text-left">
+                <h4 className="text-sm font-bold text-slate-900 leading-tight">
+                  {sec.title}
+                </h4>
+                <p className="text-[11px] text-slate-400 font-medium mt-0.5">
+                  {sec.works.length}{" "}
+                  {sec.works.length === 1 ? "música catalogada" : "músicas catalogadas"}
+                </p>
               </div>
 
               <span className="text-[11px] font-bold px-2 py-0.5 rounded-md bg-slate-100 text-slate-600">
@@ -162,10 +148,6 @@ export function CategoryAccordionView({
                     {/* Naipes */}
                     {work.audios.map((audio) => {
                       const voiceKey = audio.voicePart?.toLowerCase() || "";
-                      const voiceConfig = VOICE_COLORS[voiceKey] || {
-                        badge: "🎧",
-                      };
-
                       const buttonLabel = formatVoiceButtonLabel(audio);
 
                       const isSelectedByFilter = Boolean(

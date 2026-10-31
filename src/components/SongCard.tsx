@@ -5,8 +5,7 @@ import {
   IconFileText,
   IconPlayerPlay,
   IconExternalLink,
-  IconSparkles,
-  IconHeadphones,
+  IconMicrophone,
 } from "@tabler/icons-react";
 import type { RepertoireWork } from "@/lib/repertoireMetadata";
 import {
@@ -43,7 +42,7 @@ export function SongCard({
         <div className="flex items-center justify-between gap-2 mb-2">
           <div className="flex items-center gap-1.5 flex-wrap">
             <span
-              className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold"
+              className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold"
               style={{
                 backgroundColor:
                   work.category === "natal"
@@ -64,13 +63,12 @@ export function SongCard({
                 border: "1px solid rgba(0,0,0,0.06)",
               }}
             >
-              <span>{work.categoryIcon}</span>
               <span>{work.subCategory || work.categoryLabel}</span>
             </span>
 
             {work.scores.length > 0 && (
               <span className="text-[10px] font-semibold text-amber-800 bg-amber-50 border border-amber-200/80 px-2 py-0.5 rounded-full">
-                📄 Partitura
+                Partitura
               </span>
             )}
           </div>
@@ -140,12 +138,6 @@ export function SongCard({
             <div className="grid grid-cols-2 gap-1.5">
               {work.audios.map((audio) => {
                 const voiceKey = audio.voicePart?.toLowerCase() || "";
-                const voiceConfig = VOICE_COLORS[voiceKey] || {
-                  color: "blue",
-                  label: audio.voicePart || "Áudio",
-                  badge: "🎧",
-                };
-
                 const buttonLabel = formatVoiceButtonLabel(audio);
 
                 const isSelectedByFilter = Boolean(
@@ -173,7 +165,16 @@ export function SongCard({
                     }`}
                   >
                     <div className="flex items-center gap-1.5 min-w-0 pr-1">
-                      <span className="text-xs shrink-0">{voiceConfig.badge}</span>
+                      <IconMicrophone
+                        size={12}
+                        className={
+                          isSelectedByFilter
+                            ? "text-[#fde047] shrink-0"
+                            : isUserVoice
+                            ? "text-[#1e3a5f] shrink-0"
+                            : "text-slate-400 shrink-0"
+                        }
+                      />
                       <span className="truncate text-xs">{buttonLabel}</span>
                     </div>
 

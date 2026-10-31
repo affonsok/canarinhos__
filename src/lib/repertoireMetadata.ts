@@ -180,27 +180,27 @@ export const CATEGORY_INFO = {
   all: {
     label: "Todas as Obras",
     color: "canarinhosBlue",
-    icon: "🌟",
+    icon: "",
   },
   natal: {
     label: "Natal 2026",
     color: "red",
-    icon: "🎄",
+    icon: "",
   },
   missas: {
     label: "Missas & Liturgia",
     color: "blue",
-    icon: "⛪",
+    icon: "",
   },
   classicos: {
     label: "Clássico & Sacro",
     color: "violet",
-    icon: "🎼",
+    icon: "",
   },
   mpb: {
     label: "MPB & Coral Geral",
     color: "teal",
-    icon: "🎵",
+    icon: "",
   },
 } as const;
 
@@ -217,15 +217,15 @@ export const VOICE_ORDER: Record<string, number> = {
 };
 
 export const VOICE_COLORS: Record<string, { color: string; label: string; badge: string }> = {
-  soprano: { color: "pink", label: "Soprano", badge: "🌸" },
-  contralto: { color: "grape", label: "Contralto", badge: "🍇" },
-  tenor: { color: "cyan", label: "Tenor", badge: "🔷" },
-  baixo: { color: "indigo", label: "Baixo", badge: "🟦" },
-  baritono: { color: "teal", label: "Barítono", badge: "🎵" },
-  solo: { color: "orange", label: "Solo", badge: "⭐" },
-  todos: { color: "green", label: "Tutti / Todos", badge: "👥" },
-  tutti: { color: "green", label: "Tutti / Todos", badge: "👥" },
-  guia: { color: "yellow", label: "Áudio Guia", badge: "🎧" },
+  soprano: { color: "pink", label: "Soprano", badge: "" },
+  contralto: { color: "grape", label: "Contralto", badge: "" },
+  tenor: { color: "cyan", label: "Tenor", badge: "" },
+  baixo: { color: "indigo", label: "Baixo", badge: "" },
+  baritono: { color: "teal", label: "Barítono", badge: "" },
+  solo: { color: "orange", label: "Solo", badge: "" },
+  todos: { color: "green", label: "Tutti / Todos", badge: "" },
+  tutti: { color: "green", label: "Tutti / Todos", badge: "" },
+  guia: { color: "yellow", label: "Áudio Guia", badge: "" },
 };
 
 /**
