@@ -3,6 +3,7 @@
 import Link from "next/link";
 import {
   Card,
+  Paper,
   Text,
   Badge,
   Group,
@@ -99,13 +100,12 @@ export function SongCard({
       <Stack gap="sm" mt="sm">
         {/* Bloco de Partitura (se houver) */}
         {work.scores.length > 0 && (
-          <Box
+          <Paper
             p="xs"
             radius="md"
             style={{
               backgroundColor: "#fffbeb",
               border: "1px solid #fef3c7",
-              borderRadius: "8px",
             }}
           >
             <Group justify="space-between" align="center">
@@ -135,7 +135,7 @@ export function SongCard({
                 Abrir Partitura
               </Button>
             </Group>
-          </Box>
+          </Paper>
         )}
 
         {/* Bloco de Áudios por Naipe */}

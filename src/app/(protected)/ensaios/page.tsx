@@ -207,6 +207,7 @@ export default async function EnsaiosPage() {
       user={{
         name: currentUser?.name || session.user.name,
         email: currentUser?.username || session.user.email,
+        voicePart: currentUser?.voicePart || null,
       }}
       stats={stats}
       materials={materials}

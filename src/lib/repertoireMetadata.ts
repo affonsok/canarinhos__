@@ -292,7 +292,7 @@ export function groupMaterialsIntoWorks(materials: Material[]): RepertoireWork[]
 
   const works: RepertoireWork[] = [];
 
-  for (const [key, { groupMeta, items }] of groupsMap.entries()) {
+  for (const [key, { groupMeta, items }] of Array.from(groupsMap.entries())) {
     const known = KNOWN_WORKS[key];
 
     // Categoria e Títulos
@@ -319,10 +319,10 @@ export function groupMaterialsIntoWorks(materials: Material[]): RepertoireWork[]
 
     const catInfo = CATEGORY_INFO[category] || CATEGORY_INFO.classicos;
 
-    const scores = items.filter((m) => m.type === "score");
+    const scores = items.filter((m: Material) => m.type === "score");
     const audios = items
-      .filter((m) => m.type === "audio")
-      .sort((a, b) => {
+      .filter((m: Material) => m.type === "audio")
+      .sort((a: Material, b: Material) => {
         const orderA = VOICE_ORDER[a.voicePart?.toLowerCase() || ""] || 99;
         const orderB = VOICE_ORDER[b.voicePart?.toLowerCase() || ""] || 99;
         return orderA - orderB;

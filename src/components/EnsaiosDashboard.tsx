@@ -34,6 +34,7 @@ interface EnsaiosDashboardProps {
   user: {
     name?: string | null;
     email?: string | null;
+    voicePart?: string | null;
   };
   stats: PracticeStats;
   materials: Material[];
@@ -144,7 +145,7 @@ export function EnsaiosDashboard({
               leftSection={<IconMusic size={16} />}
               style={{ fontWeight: 600, fontSize: "15px" }}
             >
-              Repertório ({materials.length})
+              Repertório (25 Obras)
             </Tabs.Tab>
             <Tabs.Tab
               value="eventos"
@@ -187,7 +188,10 @@ export function EnsaiosDashboard({
                 </Box>
               )}
 
-              <MaterialsExplorer initialMaterials={materials} />
+              <MaterialsExplorer
+                initialMaterials={materials}
+                currentUserVoice={user.voicePart}
+              />
             </Stack>
           </Tabs.Panel>
 

@@ -32,7 +32,7 @@ export default async function MaterialDetailPage({
   params: { id: string };
 }) {
   const session = await getServerSession(authOptions);
-  if (!session?.user?.email) redirect("/login");
+  if (!session?.user?.email && !session?.user?.name) redirect("/login");
 
   const dbMaterial = await prisma.material.findUnique({
     where: { id: params.id },
