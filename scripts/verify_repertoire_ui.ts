@@ -53,6 +53,8 @@ async function verify() {
     { name: "Meu Naipe: baixo", match: html.includes("Meu Naipe") && html.includes("baixo") },
     { name: "Botão de Partitura Geral", match: html.includes("Partitura") },
     { name: "Modo Por Obra / Pastas", match: html.includes("Por Obra") || html.includes("Pastas") },
+    { name: "Link História removido de /ensaios", match: !html.includes("/#historia") },
+    { name: "Link Edital removido de /ensaios", match: !html.includes("/#edital-bolsistas") },
   ];
 
   console.log("\n=== RESULTADOS DA VERIFICAÇÃO ===");

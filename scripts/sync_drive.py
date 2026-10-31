@@ -125,11 +125,26 @@ def clean_folder_name(name: str) -> str:
     return cleaned.strip()
 
 
+def extract_folder_id(raw: str) -> str:
+    """Extrai o ID da pasta a partir de uma URL completa do Google Drive ou retorna o próprio ID."""
+    match = re.search(r"folders/([a-zA-Z0-9_-]+)", raw)
+    if match:
+        return match.group(1)
+    match_id = re.search(r"[?&]id=([a-zA-Z0-9_-]+)", raw)
+    if match_id:
+        return match_id.group(1)
+    return raw.strip()
+
+
 def get_env_or_exit(name: str) -> str:
     value = os.getenv(name)
     if not value:
         raise SystemExit(f"Variável de ambiente obrigatória não definida: {name}")
     return value
+
+
+def get_env_with_default(name: str, default: str) -> str:
+    return os.getenv(name) or default
 
 
 def build_drive_service():
@@ -321,11 +336,15 @@ def build_local_path(group_slug: str, file_type: str, original_name: str) -> Pat
 
 
 def sync(dry_run: bool) -> None:
-    folder_id = get_env_or_exit("DRIVE_FOLDER_ID")
-    api_base_url = get_env_or_exit("API_BASE_URL")
-    sync_secret = get_env_or_exit("SYNC_SECRET")
+    raw_folder = get_env_or_exit("DRIVE_FOLDER_ID")
+    folder_id = extract_folder_id(raw_folder)
+    api_base_url = get_env_with_default(
+        "API_BASE_URL", os.getenv("NEXTAUTH_URL") or "http://localhost:3001"
+    )
+    sync_secret = get_env_with_default("SYNC_SECRET", "canarinhos-sync-secret")
 
     service = build_drive_service()
+    LOGGER.info(f"Iniciando sincronização a partir do Drive Folder ID: {folder_id}")
     files = walk_drive_folder(service, folder_id)
 
     successes = 0

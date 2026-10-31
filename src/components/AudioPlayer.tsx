@@ -1,26 +1,15 @@
 "use client";
 
 import { useRef, useState, useEffect } from "react";
-import {
-  Paper,
-  Text,
-  Group,
-  ActionIcon,
-  Slider,
-  Badge,
-  Stack,
-  Button,
-  Box,
-  Tooltip,
-} from "@mantine/core";
+import { Slider, Tooltip } from "@mantine/core";
 import {
   IconPlayerPlay,
   IconPlayerPause,
   IconVolume,
   IconVolumeOff,
   IconRepeat,
-  IconClock,
   IconCheck,
+  IconClock,
 } from "@tabler/icons-react";
 
 function formatTime(seconds: number): string {
@@ -76,17 +65,20 @@ export function AudioPlayer({
       audio.pause();
       setPlaying(false);
     } else {
-      audio.play().then(() => {
-        setPlaying(true);
-        if (materialId && !practiceLogged) {
-          setPracticeLogged(true);
-          fetch("/api/practice-log", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ materialId }),
-          }).catch(() => {});
-        }
-      }).catch(() => setPlaying(false));
+      audio
+        .play()
+        .then(() => {
+          setPlaying(true);
+          if (materialId && !practiceLogged) {
+            setPracticeLogged(true);
+            fetch("/api/practice-log", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ materialId }),
+            }).catch(() => {});
+          }
+        })
+        .catch(() => setPlaying(false));
     }
   }
 
@@ -133,125 +125,125 @@ export function AudioPlayer({
   }
 
   return (
-    <Paper withBorder shadow="sm" radius="lg" p="xl" bg="white">
+    <div className="p-5 md:p-6 rounded-2xl bg-white border border-slate-200/90 shadow-2xs">
       <audio ref={audioRef} src={src} preload="metadata" />
 
-      <Stack gap="lg">
-        {/* Header do Player */}
-        <Group justify="space-between" align="center">
-          <div>
-            <Text fw={700} size="lg" c="canarinhosBlue.7">
-              {title}
-            </Text>
-            <Text size="xs" c="dimmed">
-              Use os controles de velocidade para treinar trechos rápidos
-            </Text>
-          </div>
-
-          {practiceLogged && (
-            <Badge
-              color="teal"
-              variant="light"
-              size="sm"
-              leftSection={<IconCheck size={12} />}
-            >
-              Ensaio Registrado
-            </Badge>
-          )}
-        </Group>
-
-        {/* Barra de Progresso */}
+      {/* Topo do Player com Indicador de Registro */}
+      <div className="flex items-center justify-between pb-3 border-b border-slate-100 mb-4">
         <div>
-          <Slider
-            value={currentTime}
-            max={duration || 100}
-            onChange={handleSeek}
-            label={formatTime}
-            color="canarinhosGold"
-            size="md"
-            styles={{
-              thumb: { borderWidth: 2, borderColor: "#1e3a5f" },
-            }}
-          />
-          <Group justify="space-between" mt={4}>
-            <Text size="xs" c="dimmed" fw={500}>
-              {formatTime(currentTime)}
-            </Text>
-            <Text size="xs" c="dimmed" fw={500}>
-              {formatTime(duration)}
-            </Text>
-          </Group>
+          <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-0.5">
+            Console de Reprodução Vocal
+          </span>
+          <h3 className="text-base font-bold text-slate-900 leading-tight">
+            {title}
+          </h3>
         </div>
 
-        {/* Controles Principais */}
-        <Group justify="space-between" align="center" wrap="wrap" gap="md">
-          {/* Play/Pause e Repetir */}
-          <Group gap="sm">
-            <ActionIcon
-              size={54}
-              radius="xl"
-              color="canarinhosBlue"
-              variant="filled"
-              onClick={togglePlay}
-              style={{
-                boxShadow: "0 4px 14px rgba(30, 58, 95, 0.35)",
-              }}
-              aria-label={playing ? "Pausar" : "Reproduzir"}
+        {practiceLogged ? (
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+            <span>Ensaio Computado no Ranking</span>
+          </span>
+        ) : (
+          <span className="text-xs text-slate-400 font-medium">
+            Escute para computar no ranking
+          </span>
+        )}
+      </div>
+
+      {/* Barra de Progresso e Tempo */}
+      <div className="mb-5">
+        <Slider
+          value={currentTime}
+          max={duration || 100}
+          onChange={handleSeek}
+          label={formatTime}
+          color="yellow.7"
+          size="sm"
+          styles={{
+            thumb: { borderWidth: 2, borderColor: "#0c1e38" },
+            bar: { backgroundColor: "#c9a227" },
+          }}
+        />
+        <div className="flex items-center justify-between mt-1.5 text-xs font-semibold text-slate-400">
+          <span>{formatTime(currentTime)}</span>
+          <span>{formatTime(duration)}</span>
+        </div>
+      </div>
+
+      {/* Controles do Console Bento */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-1">
+        {/* Play/Pause e Loop */}
+        <div className="flex items-center gap-3">
+          <button
+            type="button"
+            onClick={togglePlay}
+            className="w-12 h-12 rounded-2xl bg-[#0c1e38] hover:bg-[#162c4a] text-white flex items-center justify-center transition-all shadow-xs active:scale-95"
+            aria-label={playing ? "Pausar áudio" : "Reproduzir áudio"}
+          >
+            {playing ? (
+              <IconPlayerPause size={22} />
+            ) : (
+              <IconPlayerPlay size={22} className="ml-0.5 text-[#fde047]" />
+            )}
+          </button>
+
+          <Tooltip label={loop ? "Desativar repetição" : "Repetir continuamente (Loop)"}>
+            <button
+              type="button"
+              onClick={toggleLoop}
+              className={`p-2.5 rounded-xl border transition-colors ${
+                loop
+                  ? "bg-[#c9a227] text-slate-950 border-[#c9a227] font-bold shadow-2xs"
+                  : "bg-slate-50 hover:bg-slate-100 text-slate-600 border-slate-200"
+              }`}
+              aria-label="Repetição contínua"
             >
-              {playing ? (
-                <IconPlayerPause size={26} />
-              ) : (
-                <IconPlayerPlay size={26} style={{ marginLeft: 3 }} />
-              )}
-            </ActionIcon>
+              <IconRepeat size={18} />
+            </button>
+          </Tooltip>
 
-            <Tooltip label={loop ? "Desativar repetição" : "Repetir continuamente"}>
-              <ActionIcon
-                size="lg"
-                radius="md"
-                variant={loop ? "filled" : "light"}
-                color={loop ? "yellow.7" : "gray"}
-                onClick={toggleLoop}
-              >
-                <IconRepeat size={18} />
-              </ActionIcon>
-            </Tooltip>
-          </Group>
+          <div className="text-xs text-slate-500 font-medium pl-1">
+            {playing ? "Tocando..." : "Pronto para ensaiar"}
+          </div>
+        </div>
 
-          {/* Velocidade de reprodução para ensaio */}
-          <Group gap={4}>
-            <Text size="xs" fw={600} c="dimmed" mr={4}>
-              Velocidade:
-            </Text>
-            {[0.75, 1, 1.25].map((rate) => (
-              <Button
-                key={rate}
-                size="xs"
-                radius="sm"
-                variant={playbackRate === rate ? "filled" : "light"}
-                color={playbackRate === rate ? "canarinhosBlue" : "gray"}
-                onClick={() => changeSpeed(rate)}
-                style={{ padding: "0 8px", height: "26px" }}
-              >
-                {rate}x
-              </Button>
-            ))}
-          </Group>
-
-          {/* Volume */}
-          <Group gap="xs" style={{ width: 140 }}>
-            <ActionIcon
-              variant="subtle"
-              color="gray"
-              size="sm"
-              onClick={toggleMute}
+        {/* Velocidade de Estudo (0.75x, 1x, 1.25x) */}
+        <div className="flex items-center gap-1.5 bg-slate-50 p-1.5 rounded-xl border border-slate-200/80">
+          <span className="text-[11px] font-bold text-slate-400 px-1">
+            Velocidade:
+          </span>
+          {[0.75, 1, 1.25].map((rate) => (
+            <button
+              key={rate}
+              type="button"
+              onClick={() => changeSpeed(rate)}
+              className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all ${
+                playbackRate === rate
+                  ? "bg-[#0c1e38] text-white shadow-2xs"
+                  : "bg-transparent hover:bg-white text-slate-600"
+              }`}
             >
-              {muted || volume === 0 ? (
-                <IconVolumeOff size={18} />
-              ) : (
-                <IconVolume size={18} />
-              )}
-            </ActionIcon>
+              {rate}x
+            </button>
+          ))}
+        </div>
+
+        {/* Volume */}
+        <div className="flex items-center gap-2 min-w-[130px]">
+          <button
+            type="button"
+            onClick={toggleMute}
+            className="text-slate-400 hover:text-slate-700 transition-colors"
+            aria-label={muted ? "Ativar som" : "Silenciar"}
+          >
+            {muted || volume === 0 ? (
+              <IconVolumeOff size={18} />
+            ) : (
+              <IconVolume size={18} />
+            )}
+          </button>
+          <div className="flex-1">
             <Slider
               value={muted ? 0 : volume}
               max={1}
@@ -259,12 +251,11 @@ export function AudioPlayer({
               onChange={handleVolumeChange}
               size="xs"
               color="canarinhosBlue"
-              style={{ flex: 1 }}
               label={(val) => `${Math.round(val * 100)}%`}
             />
-          </Group>
-        </Group>
-      </Stack>
-    </Paper>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }

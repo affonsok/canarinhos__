@@ -16,7 +16,11 @@ import {
   IconHeadphones,
 } from "@tabler/icons-react";
 
-export async function Header() {
+export async function Header({
+  hidePublicLinks = false,
+}: {
+  hidePublicLinks?: boolean;
+} = {}) {
   const session = await getServerSession(authOptions);
 
   return (
@@ -69,28 +73,32 @@ export async function Header() {
 
           {/* Links e Botão Ensaios */}
           <Group gap="md">
-            <Link
-              href="/#historia"
-              style={{
-                textDecoration: "none",
-                color: "#e2e8f0",
-                fontSize: "14px",
-                fontWeight: 500,
-              }}
-            >
-              História
-            </Link>
-            <Link
-              href="/#edital-bolsistas"
-              style={{
-                textDecoration: "none",
-                color: "#e2e8f0",
-                fontSize: "14px",
-                fontWeight: 500,
-              }}
-            >
-              Edital
-            </Link>
+            {!hidePublicLinks && !session?.user && (
+              <>
+                <Link
+                  href="/#historia"
+                  style={{
+                    textDecoration: "none",
+                    color: "#e2e8f0",
+                    fontSize: "14px",
+                    fontWeight: 500,
+                  }}
+                >
+                  História
+                </Link>
+                <Link
+                  href="/#edital-bolsistas"
+                  style={{
+                    textDecoration: "none",
+                    color: "#e2e8f0",
+                    fontSize: "14px",
+                    fontWeight: 500,
+                  }}
+                >
+                  Edital
+                </Link>
+              </>
+            )}
 
             {session?.user ? (
               <Group gap="xs">

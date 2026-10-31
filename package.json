@@ -10,7 +10,9 @@
     "format": "prettier --write \"src/**/*.{ts,tsx,json,md}\"",
     "db:migrate": "prisma migrate dev",
     "db:seed": "tsx prisma/seed.ts",
-    "db:studio": "prisma studio"
+    "db:studio": "prisma studio",
+    "sync:drive": "python scripts/sync_drive.py",
+    "sync:materials": "python scripts/organize_materials.py"
   },
   "dependencies": {
     "@mantine/core": "^7.17.8",

@@ -1,62 +1,57 @@
 "use client";
 
-import { Paper, Group, Text, Button, Box, ThemeIcon } from "@mantine/core";
-import { IconFileText, IconExternalLink, IconDownload } from "@tabler/icons-react";
+import { IconFileText, IconExternalLink, IconDownload, IconPrinter } from "@tabler/icons-react";
 
 export function PdfViewer({ src, title }: { src: string; title: string }) {
   return (
-    <Paper withBorder shadow="sm" radius="lg" style={{ overflow: "hidden" }} bg="white">
-      {/* Barra superior de controle do PDF */}
-      <Box p="md" style={{ borderBottom: "1px solid #e2e8f0" }}>
-        <Group justify="space-between" align="center">
-          <Group gap="xs">
-            <ThemeIcon color="orange" variant="light" size="md" radius="md">
-              <IconFileText size={18} />
-            </ThemeIcon>
-            <Text fw={600} size="sm" c="dark.8">
-              Visualizador de Partitura: {title}
-            </Text>
-          </Group>
+    <div className="rounded-2xl border border-slate-200/90 overflow-hidden bg-white shadow-2xs">
+      {/* Barra Superior do Visualizador Bento */}
+      <div className="p-3.5 sm:p-4 bg-white border-b border-slate-200/90 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div className="flex items-center gap-2.5">
+          <div className="w-8 h-8 rounded-lg bg-amber-100 text-amber-900 flex items-center justify-center shrink-0">
+            <IconFileText size={17} />
+          </div>
+          <div>
+            <h3 className="text-xs sm:text-sm font-bold text-slate-900 leading-tight">
+              Partitura: {title}
+            </h3>
+            <p className="text-[11px] text-slate-400 font-medium">
+              Documento musical oficial para impressão ou visualização
+            </p>
+          </div>
+        </div>
 
-          <Group gap="xs">
-            <Button
-              component="a"
-              href={src}
-              target="_blank"
-              rel="noreferrer"
-              variant="light"
-              color="canarinhosBlue"
-              size="xs"
-              radius="md"
-              leftSection={<IconExternalLink size={14} />}
-            >
-              Abrir em Nova Aba
-            </Button>
-            <Button
-              component="a"
-              href={src}
-              download
-              variant="outline"
-              color="gray.7"
-              size="xs"
-              radius="md"
-              leftSection={<IconDownload size={14} />}
-            >
-              Baixar PDF
-            </Button>
-          </Group>
-        </Group>
-      </Box>
+        <div className="flex items-center gap-2 shrink-0">
+          <a
+            href={src}
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-[#edf4fb] hover:bg-[#d8e7f6] text-[#1e3a5f] border border-[#accdef] transition-colors"
+          >
+            <IconExternalLink size={13} />
+            <span>Tela Cheia</span>
+          </a>
 
-      {/* Frame de exibição */}
-      <Box style={{ position: "relative", height: "700px", width: "100%", backgroundColor: "#f8fafc" }}>
+          <a
+            href={src}
+            download
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-[#c9a227] hover:bg-[#b58f1f] text-slate-950 transition-colors shadow-2xs"
+          >
+            <IconDownload size={13} />
+            <span>Baixar PDF</span>
+          </a>
+        </div>
+      </div>
+
+      {/* Frame de Exibição de Partitura */}
+      <div className="relative h-[650px] sm:h-[750px] w-full bg-slate-100">
         <iframe
           src={src}
           title={title}
-          style={{ width: "100%", height: "100%", border: "none" }}
+          className="w-full h-full border-none"
           loading="lazy"
         />
-      </Box>
-    </Paper>
+      </div>
+    </div>
   );
 }
