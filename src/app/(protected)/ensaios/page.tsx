@@ -14,8 +14,9 @@ export default async function EnsaiosPage() {
     redirect("/login");
   }
 
-  // 1. Carrega materiais
+  // 1. Carrega materiais com seus grupos/músicas
   const dbMaterials = await prisma.material.findMany({
+    include: { group: true },
     orderBy: { uploadedAt: "desc" },
   });
   const materials: Material[] = dbMaterials.map((m) => ({
@@ -26,6 +27,15 @@ export default async function EnsaiosPage() {
     driveId: m.driveId,
     localPath: m.localPath,
     uploadedAt: m.uploadedAt.toISOString(),
+    groupId: m.groupId,
+    group: m.group
+      ? {
+          id: m.group.id,
+          name: m.group.name,
+          slug: m.group.slug,
+          description: m.group.description,
+        }
+      : null,
   }));
 
   // 2. Carrega avisos

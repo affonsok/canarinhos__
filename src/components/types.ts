@@ -1,5 +1,12 @@
 export type MaterialType = "audio" | "lyric" | "score";
 
+export interface MaterialGroup {
+  id: string;
+  name: string;
+  slug: string;
+  description?: string | null;
+}
+
 export interface Material {
   id: string;
   title: string;
@@ -9,6 +16,8 @@ export interface Material {
   driveId?: string | null;
   localPath?: string | null;
   uploadedAt: string;
+  groupId?: string | null;
+  group?: MaterialGroup | null;
 }
 
 export interface Announcement {
