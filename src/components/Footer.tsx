@@ -2,7 +2,11 @@ import { Container, Group, Text, Box } from "@mantine/core";
 import { IconMusic } from "@tabler/icons-react";
 import Link from "next/link";
 
-export function Footer() {
+export function Footer({
+  hidePublicLinks = false,
+}: {
+  hidePublicLinks?: boolean;
+} = {}) {
   return (
     <Box
       component="footer"
@@ -34,39 +38,41 @@ export function Footer() {
             </Text>
           </Group>
 
-          <Group gap="lg">
-            <Link
-              href="/#historia"
-              style={{
-                textDecoration: "none",
-                fontSize: "13px",
-                color: "#64748b",
-              }}
-            >
-              História
-            </Link>
-            <Link
-              href="/#atividades"
-              style={{
-                textDecoration: "none",
-                fontSize: "13px",
-                color: "#64748b",
-              }}
-            >
-              Atividades
-            </Link>
-            <Link
-              href="/login"
-              style={{
-                textDecoration: "none",
-                fontSize: "13px",
-                color: "#1e3a5f",
-                fontWeight: 600,
-              }}
-            >
-              Acesso Aluno
-            </Link>
-          </Group>
+          {!hidePublicLinks && (
+            <Group gap="lg">
+              <Link
+                href="/#historia"
+                style={{
+                  textDecoration: "none",
+                  fontSize: "13px",
+                  color: "#64748b",
+                }}
+              >
+                História
+              </Link>
+              <Link
+                href="/#atividades"
+                style={{
+                  textDecoration: "none",
+                  fontSize: "13px",
+                  color: "#64748b",
+                }}
+              >
+                Atividades
+              </Link>
+              <Link
+                href="/login"
+                style={{
+                  textDecoration: "none",
+                  fontSize: "13px",
+                  color: "#1e3a5f",
+                  fontWeight: 600,
+                }}
+              >
+                Acesso Aluno
+              </Link>
+            </Group>
+          )}
         </Group>
 
         <Text ta="center" size="xs" c="dimmed" mt="md">
