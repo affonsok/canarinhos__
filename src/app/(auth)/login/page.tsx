@@ -55,9 +55,7 @@ function LoginForm() {
       return;
     }
 
-    if (result?.url) {
-      window.location.href = result.url;
-    }
+    window.location.href = result?.url || callbackUrl;
   }
 
   return (
