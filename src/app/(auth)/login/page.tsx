@@ -157,12 +157,12 @@ function LoginForm() {
   }
 
   const voiceOptions = [
-    { value: "soprano", label: "🌸 Soprano", desc: "Voz aguda feminina / infantil" },
-    { value: "contralto", label: "🍇 Contralto", desc: "Voz média / grave feminina" },
-    { value: "tenor", label: "🔷 Tenor", desc: "Voz aguda masculina" },
-    { value: "baixo", label: "🟦 Baixo", desc: "Voz grave masculina" },
-    { value: "baritono", label: "🎵 Barítono", desc: "Voz intermediária masculina" },
-    { value: "todos", label: "👥 Todos / Tutti", desc: "Todas as vozes ou iniciante" },
+    { value: "soprano", label: "Soprano", desc: "Voz aguda feminina / infantil" },
+    { value: "contralto", label: "Contralto", desc: "Voz média / grave feminina" },
+    { value: "tenor", label: "Tenor", desc: "Voz aguda masculina" },
+    { value: "baixo", label: "Baixo", desc: "Voz grave masculina" },
+    { value: "baritono", label: "Barítono", desc: "Voz intermediária masculina" },
+    { value: "todos", label: "Todos / Tutti", desc: "Todas as vozes ou iniciante" },
   ];
 
   return (
@@ -288,7 +288,7 @@ function LoginForm() {
                 >
                   <Group justify="space-between">
                     <Text size="xs" fw={700} c="dark.8">
-                      🔑 Login Demo:
+                      Acesso de Demonstração:
                     </Text>
                     <Badge size="xs" color="yellow.8" variant="light">
                       Teste Rápido

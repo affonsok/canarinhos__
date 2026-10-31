@@ -138,12 +138,12 @@ export default async function EnsaiosPage() {
       rank: index + 1,
       medal:
         index === 0
-          ? "🥇 Ouro"
+          ? "Ouro"
           : index === 1
-            ? "🥈 Prata"
+            ? "Prata"
             : index === 2
-              ? "🥉 Bronze"
-              : "⭐ Participante",
+              ? "Bronze"
+              : "Participante",
     }));
 
   // 5. Carrega eventos com repertório conectado

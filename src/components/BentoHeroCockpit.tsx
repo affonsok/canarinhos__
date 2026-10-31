@@ -2,30 +2,16 @@
 
 import Link from "next/link";
 import {
-  Paper,
-  Text,
-  Badge,
-  Group,
-  ThemeIcon,
   Button,
-  Stack,
   Box,
-  SimpleGrid,
-  Tooltip,
 } from "@mantine/core";
 import {
-  IconCalendarEvent,
   IconMapPin,
   IconClock,
   IconPlayerPlay,
   IconMicrophone,
-  IconFlame,
-  IconTrophy,
-  IconSparkles,
   IconFileText,
-  IconBell,
   IconArrowRight,
-  IconCheck,
 } from "@tabler/icons-react";
 import type { EventItem } from "./EventsManager";
 import type { Announcement, PracticeStats } from "./types";
@@ -57,7 +43,7 @@ export function BentoHeroCockpit({
   const voiceConfig = VOICE_COLORS[userVoice] || {
     color: "blue",
     label: user.voicePart || "Coralista",
-    badge: "🎵",
+    badge: "",
   };
 
   // Encontra a posição do usuário no ranking
@@ -115,11 +101,11 @@ export function BentoHeroCockpit({
               </div>
 
               {user.voicePart && (
-                <span className="px-2.5 py-0.5 rounded-md text-xs font-semibold bg-white/10 text-slate-200 border border-white/10">
-                  Naipe Convocado:{" "}
-                  <strong className="text-white capitalize">
-                    {user.voicePart}
-                  </strong>
+                <span className="px-2.5 py-0.5 rounded-md text-xs font-semibold bg-white/10 text-slate-200 border border-white/10 inline-flex items-center gap-1.5">
+                  <IconMicrophone size={13} className="text-[#fde047]" />
+                  <span>
+                    Naipe Convocado: <strong className="text-white capitalize">{user.voicePart}</strong>
+                  </span>
                 </span>
               )}
             </div>
@@ -270,14 +256,15 @@ export function BentoHeroCockpit({
 
               {/* Tag de Naipe */}
               <span
-                className="px-2.5 py-1 rounded-md text-xs font-bold capitalize"
+                className="px-2.5 py-1 rounded-md text-xs font-bold capitalize inline-flex items-center gap-1.5"
                 style={{
                   backgroundColor: "#edf4fb",
                   color: "#1e3a5f",
                   border: "1px solid #d8e7f6",
                 }}
               >
-                {voiceConfig.badge} {voiceConfig.label}
+                <IconMicrophone size={13} className="text-[#1e3a5f]" />
+                <span>{voiceConfig.label}</span>
               </span>
             </div>
 
@@ -315,7 +302,6 @@ export function BentoHeroCockpit({
             {/* Cartão de Reconhecimento */}
             <div className="p-3 rounded-xl bg-amber-50/60 border border-amber-200/60 mb-4">
               <div className="flex items-center gap-2 mb-1">
-                <IconTrophy size={16} className="text-[#c9a227]" />
                 <span className="text-xs font-bold text-slate-900">
                   {userRankData?.medal || "Dedicado"} • {userRankData?.totalMinutes || 0} min praticados
                 </span>
@@ -351,9 +337,6 @@ export function BentoHeroCockpit({
       {primaryAnnouncement && (
         <div className="mt-3.5 p-3.5 md:p-4 rounded-xl bg-white border border-slate-200/90 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-amber-100 text-[#a98418] flex items-center justify-center shrink-0">
-              <IconBell size={16} />
-            </div>
             <div>
               <div className="flex items-center gap-2">
                 <span className="text-[10px] font-bold uppercase tracking-wider text-amber-800 bg-amber-100/80 px-2 py-0.5 rounded">

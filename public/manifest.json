@@ -1,0 +1,32 @@
+{
+  "name": "Canarinhos de Campo Largo — Ensaios",
+  "short_name": "Canarinhos",
+  "description": "Aplicativo oficial de ensaios, naipes e repertório dos Canarinhos de Campo Largo",
+  "start_url": "/ensaios",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#0c1e38",
+  "theme_color": "#0c1e38",
+  "categories": ["education", "music", "lifestyle"],
+  "icons": [
+    {
+      "src": "/icons/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-maskable-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

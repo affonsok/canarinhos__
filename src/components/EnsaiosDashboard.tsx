@@ -3,12 +3,13 @@
 import { useState } from "react";
 import { Container, Tabs, Box } from "@mantine/core";
 import {
-  IconMusic,
+  IconMicrophone,
   IconCalendarEvent,
   IconTrophy,
   IconUsersGroup,
 } from "@tabler/icons-react";
 import { BentoHeroCockpit } from "@/components/BentoHeroCockpit";
+import { PwaInstallPrompt } from "@/components/PwaInstallPrompt";
 import { MaterialsExplorer } from "@/components/MaterialsExplorer";
 import { ChoirRanking, type RankingUser } from "@/components/ChoirRanking";
 import { EventsManager, type EventItem } from "@/components/EventsManager";
@@ -52,6 +53,11 @@ export function EnsaiosDashboard({
     <Box py="xl" className="bg-[#f8fafc] min-h-screen">
       <Container size="lg" className="px-3 sm:px-4 md:px-6">
         {/* ============================================================== */}
+        {/* INSTALAÇÃO PWA MOBILE-FIRST                                    */}
+        {/* ============================================================== */}
+        <PwaInstallPrompt />
+
+        {/* ============================================================== */}
         {/* 1. BENTO HERO COCKPIT: O CENTRO DE GRAVIDADE DA TELA           */}
         {/* ============================================================== */}
         <BentoHeroCockpit
@@ -77,7 +83,7 @@ export function EnsaiosDashboard({
             <Tabs.List className="border-none flex-nowrap min-w-max gap-1">
               <Tabs.Tab
                 value="repertorio"
-                leftSection={<IconMusic size={15} />}
+                leftSection={<IconMicrophone size={15} />}
                 className="font-bold text-xs sm:text-sm py-2 px-3.5 rounded-xl transition-all data-[active=true]:bg-[#0c1e38] data-[active=true]:text-white data-[active=true]:shadow-xs text-slate-700 hover:bg-slate-100"
               >
                 Repertório Geral ({materials.length > 0 ? "25 Obras" : "0"})

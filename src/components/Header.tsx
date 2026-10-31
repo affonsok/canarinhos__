@@ -10,10 +10,9 @@ import {
   Box,
 } from "@mantine/core";
 import {
-  IconMusic,
   IconUser,
   IconLogout,
-  IconHeadphones,
+  IconMicrophone,
 } from "@tabler/icons-react";
 
 export async function Header({
@@ -119,7 +118,7 @@ export async function Header({
                   color="yellow.6"
                   size="sm"
                   radius="md"
-                  leftSection={<IconHeadphones size={16} />}
+                  leftSection={<IconMicrophone size={16} />}
                   style={{ color: "#1e3a5f", fontWeight: 800 }}
                 >
                   Área de Ensaios
@@ -144,7 +143,7 @@ export async function Header({
                 color="yellow.6"
                 size="sm"
                 radius="md"
-                leftSection={<IconHeadphones size={16} />}
+                leftSection={<IconMicrophone size={16} />}
                 style={{
                   color: "#1e3a5f",
                   fontWeight: 800,

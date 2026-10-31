@@ -51,12 +51,12 @@ export async function GET() {
         rank: index + 1,
         medal:
           index === 0
-            ? "🥇 Ouro"
+            ? "Ouro"
             : index === 1
-              ? "🥈 Prata"
+              ? "Prata"
               : index === 2
-                ? "🥉 Bronze"
-                : "⭐ Participante",
+                ? "Bronze"
+                : "Participante",
       }));
 
     return NextResponse.json(ranking);

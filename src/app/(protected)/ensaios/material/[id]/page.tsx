@@ -5,9 +5,8 @@ import { Container, Box } from "@mantine/core";
 import {
   IconArrowLeft,
   IconCalendar,
-  IconHeadphones,
+  IconMicrophone,
   IconFileText,
-  IconSparkles,
   IconPlayerPlay,
 } from "@tabler/icons-react";
 import { AudioPlayer } from "@/components/AudioPlayer";
@@ -115,7 +114,7 @@ export default async function MaterialDetailPage({
                 }`}
               >
                 {isAudio ? (
-                  <IconHeadphones size={13} />
+                  <IconMicrophone size={13} />
                 ) : (
                   <IconFileText size={13} />
                 )}
