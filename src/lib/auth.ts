@@ -9,6 +9,7 @@ declare module "next-auth" {
       id: string;
       name?: string | null;
       email?: string | null;
+      username?: string | null;
       role?: string;
     };
   }
@@ -19,16 +20,29 @@ export const authOptions: NextAuthOptions = {
     CredentialsProvider({
       name: "credentials",
       credentials: {
-        email: { label: "Email", type: "email" },
+        login: { label: "Login ou E-mail", type: "text" },
+        email: { label: "Login ou E-mail", type: "text" },
         password: { label: "Senha", type: "password" },
       },
       async authorize(credentials) {
-        if (!credentials?.email || !credentials?.password) {
+        const identifier = (
+          credentials?.login ||
+          credentials?.email ||
+          ""
+        ).trim().toLowerCase();
+
+        if (!identifier || !credentials?.password) {
           return null;
         }
 
-        const user = await prisma.user.findUnique({
-          where: { email: credentials.email },
+        // Procura por username (ex: affonsokopmann) ou email
+        const user = await prisma.user.findFirst({
+          where: {
+            OR: [
+              { username: identifier },
+              { email: identifier },
+            ],
+          },
         });
 
         if (!user) {
@@ -47,7 +61,7 @@ export const authOptions: NextAuthOptions = {
         return {
           id: user.id,
           name: user.name,
-          email: user.email,
+          email: user.username || user.email || "",
           role: user.role,
         };
       },

@@ -4,12 +4,13 @@ import { EnsaiosDashboard } from "@/components/EnsaiosDashboard";
 import type { Announcement, Material, PracticeStats } from "@/components/types";
 import type { RankingUser } from "@/components/ChoirRanking";
 import type { EventItem } from "@/components/EventsManager";
+import type { StudentItem } from "@/components/StudentsManager";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
 export default async function EnsaiosPage() {
   const session = await getServerSession(authOptions);
-  if (!session?.user?.email) {
+  if (!session?.user?.email && !session?.user?.name) {
     redirect("/login");
   }
 
@@ -41,9 +42,15 @@ export default async function EnsaiosPage() {
     createdAt: a.createdAt.toISOString(),
   }));
 
-  // 3. Carrega estatísticas do usuário atual
-  const currentUser = await prisma.user.findUnique({
-    where: { email: session.user.email },
+  // 3. Identifica usuário atual por email ou username
+  const userIdentifier = session.user.email || session.user.name;
+  const currentUser = await prisma.user.findFirst({
+    where: {
+      OR: [
+        { email: userIdentifier || "" },
+        { username: userIdentifier || "" },
+      ],
+    },
   });
 
   let stats: PracticeStats = {
@@ -155,17 +162,48 @@ export default async function EnsaiosPage() {
     materials: evt.materials,
   }));
 
+  // 6. Carrega alunos cadastrados para o CRUD
+  const allStudents = await prisma.user.findMany({
+    select: {
+      id: true,
+      name: true,
+      username: true,
+      email: true,
+      voicePart: true,
+      role: true,
+      createdAt: true,
+      _count: {
+        select: { practiceLogs: true },
+      },
+    },
+    orderBy: {
+      name: "asc",
+    },
+  });
+
+  const students: StudentItem[] = allStudents.map((s) => ({
+    id: s.id,
+    name: s.name,
+    username: s.username || s.email?.split("@")[0] || "aluno",
+    email: s.email,
+    voicePart: s.voicePart || "Tutti",
+    role: s.role,
+    createdAt: s.createdAt.toISOString(),
+    totalSessions: s._count.practiceLogs,
+  }));
+
   return (
     <EnsaiosDashboard
       user={{
-        name: session.user.name,
-        email: session.user.email,
+        name: currentUser?.name || session.user.name,
+        email: currentUser?.username || session.user.email,
       }}
       stats={stats}
       materials={materials}
       announcements={announcements}
       ranking={ranking}
       events={events}
+      students={students}
     />
   );
 }

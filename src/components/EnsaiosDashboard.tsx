@@ -21,11 +21,13 @@ import {
   IconMusic,
   IconCalendarEvent,
   IconTrophy,
+  IconUsersGroup,
 } from "@tabler/icons-react";
 import { AnnouncementCard } from "@/components/AnnouncementCard";
 import { MaterialsExplorer } from "@/components/MaterialsExplorer";
 import { ChoirRanking, type RankingUser } from "@/components/ChoirRanking";
 import { EventsManager, type EventItem } from "@/components/EventsManager";
+import { StudentsManager, type StudentItem } from "@/components/StudentsManager";
 import type { Announcement, Material, PracticeStats } from "@/components/types";
 
 interface EnsaiosDashboardProps {
@@ -38,6 +40,7 @@ interface EnsaiosDashboardProps {
   announcements: Announcement[];
   ranking: RankingUser[];
   events: EventItem[];
+  students: StudentItem[];
 }
 
 export function EnsaiosDashboard({
@@ -47,6 +50,7 @@ export function EnsaiosDashboard({
   announcements,
   ranking,
   events,
+  students,
 }: EnsaiosDashboardProps) {
   return (
     <Box py="xl" style={{ backgroundColor: "#f8fafc", minHeight: "100vh" }}>
@@ -132,7 +136,7 @@ export function EnsaiosDashboard({
           </Paper>
         </SimpleGrid>
 
-        {/* Abas Principais em Client Component */}
+        {/* Abas Principais: Repertório / Compromissos / Ranking / Gestão de Alunos */}
         <Tabs defaultValue="repertorio" color="canarinhosBlue" radius="md">
           <Tabs.List mb="xl">
             <Tabs.Tab
@@ -140,14 +144,14 @@ export function EnsaiosDashboard({
               leftSection={<IconMusic size={16} />}
               style={{ fontWeight: 600, fontSize: "15px" }}
             >
-              Repertório & Músicas ({materials.length})
+              Repertório ({materials.length})
             </Tabs.Tab>
             <Tabs.Tab
               value="eventos"
               leftSection={<IconCalendarEvent size={16} />}
               style={{ fontWeight: 600, fontSize: "15px" }}
             >
-              Compromissos & Repertório do Evento ({events.length})
+              Compromissos ({events.length})
             </Tabs.Tab>
             <Tabs.Tab
               value="ranking"
@@ -156,12 +160,18 @@ export function EnsaiosDashboard({
             >
               Ranking de Dedicação ({ranking.length})
             </Tabs.Tab>
+            <Tabs.Tab
+              value="alunos"
+              leftSection={<IconUsersGroup size={16} />}
+              style={{ fontWeight: 600, fontSize: "15px" }}
+            >
+              Gestão de Alunos ({students.length})
+            </Tabs.Tab>
           </Tabs.List>
 
           {/* Aba 1: Repertório & Músicas */}
           <Tabs.Panel value="repertorio">
             <Stack gap="xl">
-              {/* Avisos */}
               {announcements.length > 0 && (
                 <Box>
                   <Group justify="space-between" mb="xs">
@@ -189,6 +199,11 @@ export function EnsaiosDashboard({
           {/* Aba 3: Ranking de Dedicação Vocal */}
           <Tabs.Panel value="ranking">
             <ChoirRanking ranking={ranking} />
+          </Tabs.Panel>
+
+          {/* Aba 4: Gestão de Alunos (CRUD) */}
+          <Tabs.Panel value="alunos">
+            <StudentsManager initialStudents={students} />
           </Tabs.Panel>
         </Tabs>
       </Container>

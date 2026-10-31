@@ -20,19 +20,18 @@ import {
   Badge,
 } from "@mantine/core";
 import {
-  IconMail,
+  IconUser,
   IconLock,
   IconAlertCircle,
   IconMusic,
   IconArrowLeft,
-  IconSparkles,
 } from "@tabler/icons-react";
 
 function LoginForm() {
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get("callbackUrl") || "/ensaios";
-  const [email, setEmail] = useState("aluno@canarinhos.com");
-  const [password, setPassword] = useState("canarinhos123");
+  const [login, setLogin] = useState("affonsokopmann");
+  const [password, setPassword] = useState("123456");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -42,7 +41,7 @@ function LoginForm() {
     setLoading(true);
 
     const result = await signIn("credentials", {
-      email,
+      login: login.trim().toLowerCase(),
       password,
       redirect: false,
       callbackUrl,
@@ -51,7 +50,7 @@ function LoginForm() {
     setLoading(false);
 
     if (result?.error) {
-      setError("Credenciais inválidas. Verifique seu e-mail e senha.");
+      setError("Credenciais inválidas. Verifique seu login e senha.");
       return;
     }
 
@@ -74,29 +73,31 @@ function LoginForm() {
           <Link href="/" style={{ textDecoration: "none" }}>
             <Group gap="xs">
               <Box
+                component="img"
+                src="/images/logo-canarinhos-transparent.png"
+                alt="Logo Canarinhos"
                 style={{
-                  backgroundColor: "#1e3a5f",
-                  color: "#c9a227",
-                  borderRadius: "10px",
-                  padding: "8px",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
+                  width: "56px",
+                  height: "56px",
+                  objectFit: "contain",
                 }}
-              >
-                <IconMusic size={26} stroke={2.5} />
-              </Box>
-              <Text fw={800} size="xl" c="canarinhosBlue.7" style={{ letterSpacing: "0.05em" }}>
-                CANARINHOS
-              </Text>
+              />
+              <div>
+                <Text fw={800} size="xl" c="canarinhosBlue.7" style={{ letterSpacing: "0.02em" }}>
+                  Canarinhos de Campo Largo
+                </Text>
+                <Text size="xs" c="canarinhosGold.7" fw={700}>
+                  Área do Aluno • Ensaios
+                </Text>
+              </div>
             </Group>
           </Link>
 
-          <Title ta="center" order={2} fw={800} c="dark.8">
-            Área do Aluno
+          <Title ta="center" order={2} fw={800} c="dark.8" mt="xs">
+            Acesso aos Ensaios
           </Title>
           <Text c="dimmed" size="sm" ta="center">
-            Acesse áudios de naipe, partituras e comunicados
+            Digite seu login de aluno e sua senha
           </Text>
         </Stack>
 
@@ -115,18 +116,19 @@ function LoginForm() {
               )}
 
               <TextInput
-                label="E-mail"
-                placeholder="seu.email@exemplo.com"
+                label="Login do Aluno"
+                description="Seu nome e sobrenome juntos (sem espaços)"
+                placeholder="ex: affonsokopmann"
                 required
-                value={email}
-                onChange={(e) => setEmail(e.currentTarget.value)}
-                leftSection={<IconMail size={16} stroke={1.5} />}
+                value={login}
+                onChange={(e) => setLogin(e.currentTarget.value)}
+                leftSection={<IconUser size={16} stroke={1.5} />}
                 radius="md"
               />
 
               <PasswordInput
                 label="Senha"
-                placeholder="Sua senha secreta"
+                placeholder="Sua senha"
                 required
                 value={password}
                 onChange={(e) => setPassword(e.currentTarget.value)}
@@ -143,15 +145,15 @@ function LoginForm() {
                 }}
               >
                 <Group justify="space-between">
-                  <Text size="xs" fw={600} c="dark.7">
-                    🔑 Credenciais de Teste:
+                  <Text size="xs" fw={700} c="dark.8">
+                    🔑 Login de Exemplo:
                   </Text>
                   <Badge size="xs" color="yellow.8" variant="light">
                     Pronto para testar
                   </Badge>
                 </Group>
-                <Text size="xs" c="dimmed" mt={4}>
-                  aluno@canarinhos.com / canarinhos123
+                <Text size="xs" c="dark.6" mt={4}>
+                  Login: <strong>affonsokopmann</strong> / Senha: <strong>123456</strong>
                 </Text>
               </Box>
 
@@ -164,7 +166,7 @@ function LoginForm() {
                 size="md"
                 fw={700}
               >
-                Entrar na Área de Ensaios
+                Entrar nos Ensaios
               </Button>
             </Stack>
           </form>
@@ -180,7 +182,7 @@ function LoginForm() {
               <IconArrowLeft size={12} /> Voltar ao início
             </Anchor>
             <Text c="dimmed" size="xs">
-              Dúvidas? Fale com a regência.
+              Esqueceu? Fale com a regência.
             </Text>
           </Group>
         </Paper>

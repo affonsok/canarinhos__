@@ -6,12 +6,32 @@ const prisma = new PrismaClient();
 async function seedData() {
   const hash = await bcrypt.hash("canarinhos123", 10);
 
+  // Usuário de exemplo solicitado pelo usuário: affonsokopmann / 123456
+  const affonsoHash = await bcrypt.hash("123456", 10);
+  await prisma.user.upsert({
+    where: { username: "affonsokopmann" },
+    update: {
+      passwordHash: affonsoHash,
+      name: "Affonso Kopmann",
+      voicePart: "baixo",
+    },
+    create: {
+      name: "Affonso Kopmann",
+      username: "affonsokopmann",
+      email: "affonsokopmann@canarinhos.local",
+      passwordHash: affonsoHash,
+      role: "admin",
+      voicePart: "baixo",
+    },
+  });
+
   // Atualiza aluno teste
   await prisma.user.upsert({
     where: { email: "aluno@canarinhos.com" },
-    update: { voicePart: "soprano" },
+    update: { voicePart: "soprano", username: "alunoteste" },
     create: {
       name: "Aluno Teste",
+      username: "alunoteste",
       email: "aluno@canarinhos.com",
       passwordHash: hash,
       role: "member",
@@ -21,11 +41,11 @@ async function seedData() {
 
   // Cantores infantis do coro
   const singers = [
-    { name: "Maria Clara da Silva", email: "maria.clara@canarinhos.com", voicePart: "soprano", sessions: 15 },
-    { name: "Lucas Gabriel Moreira", email: "lucas.gabriel@canarinhos.com", voicePart: "tenor", sessions: 12 },
-    { name: "Beatriz Lima Souza", email: "beatriz.lima@canarinhos.com", voicePart: "contralto", sessions: 10 },
-    { name: "Gabriel Santos Ferreira", email: "gabriel.santos@canarinhos.com", voicePart: "baixo", sessions: 8 },
-    { name: "Sofia Helena Ribeiro", email: "sofia.helena@canarinhos.com", voicePart: "soprano", sessions: 6 },
+    { name: "Maria Clara da Silva", username: "mariaclara", email: "maria.clara@canarinhos.com", voicePart: "soprano", sessions: 15 },
+    { name: "Lucas Gabriel Moreira", username: "lucasgabriel", email: "lucas.gabriel@canarinhos.com", voicePart: "tenor", sessions: 12 },
+    { name: "Beatriz Lima Souza", username: "beatrizlima", email: "beatriz.lima@canarinhos.com", voicePart: "contralto", sessions: 10 },
+    { name: "Gabriel Santos Ferreira", username: "gabrielsantos", email: "gabriel.santos@canarinhos.com", voicePart: "baixo", sessions: 8 },
+    { name: "Sofia Helena Ribeiro", username: "sofiahelena", email: "sofia.helena@canarinhos.com", voicePart: "soprano", sessions: 6 },
   ];
 
   const allMaterials = await prisma.material.findMany();
@@ -34,9 +54,10 @@ async function seedData() {
   for (const s of singers) {
     const user = await prisma.user.upsert({
       where: { email: s.email },
-      update: { name: s.name, voicePart: s.voicePart },
+      update: { name: s.name, voicePart: s.voicePart, username: s.username },
       create: {
         name: s.name,
+        username: s.username,
         email: s.email,
         passwordHash: hash,
         role: "member",
