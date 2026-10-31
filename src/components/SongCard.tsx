@@ -2,24 +2,11 @@
 
 import Link from "next/link";
 import {
-  Card,
-  Paper,
-  Text,
-  Badge,
-  Group,
-  ThemeIcon,
-  Button,
-  Stack,
-  Box,
-  SimpleGrid,
-  Tooltip,
-} from "@mantine/core";
-import {
   IconFileText,
-  IconHeadphones,
   IconPlayerPlay,
   IconExternalLink,
   IconSparkles,
+  IconHeadphones,
 } from "@tabler/icons-react";
 import type { RepertoireWork } from "@/lib/repertoireMetadata";
 import {
@@ -43,109 +30,114 @@ export function SongCard({
       ? selectedVoice.toLowerCase()
       : null;
 
+  const normalizedUserVoice = currentUserVoice
+    ? currentUserVoice.toLowerCase()
+    : null;
+
   return (
-    <Card
-      withBorder
-      shadow="xs"
-      padding="lg"
-      radius="md"
-      bg="white"
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        justifyContent: "space-between",
-        transition: "all 0.2s ease",
-        borderColor: "#e2e8f0",
-      }}
-      className="hover:shadow-md hover:border-canarinhos-gold"
-    >
+    <div className="flex flex-col justify-between p-4 sm:p-5 rounded-2xl bg-white border border-slate-200/90 shadow-2xs hover:border-slate-300 hover:shadow-xs transition-all relative overflow-hidden group">
       <div>
-        {/* Cabeçalho do Card */}
-        <Group justify="space-between" align="flex-start" mb="xs" wrap="nowrap">
-          <Group gap="xs" wrap="wrap">
-            <Badge
-              size="sm"
-              color={work.categoryColor}
-              variant="light"
-              leftSection={<span>{work.categoryIcon}</span>}
+        {/* ============================================================== */}
+        {/* TOPO: CATEGORIA & CONTADORES                                   */}
+        {/* ============================================================== */}
+        <div className="flex items-center justify-between gap-2 mb-2">
+          <div className="flex items-center gap-1.5 flex-wrap">
+            <span
+              className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold"
+              style={{
+                backgroundColor:
+                  work.category === "natal"
+                    ? "#fee2e2"
+                    : work.category === "missas"
+                    ? "#eff6ff"
+                    : work.category === "classicos"
+                    ? "#f5f3ff"
+                    : "#f0fdf4",
+                color:
+                  work.category === "natal"
+                    ? "#991b1b"
+                    : work.category === "missas"
+                    ? "#1e40af"
+                    : work.category === "classicos"
+                    ? "#5b21b6"
+                    : "#166534",
+                border: "1px solid rgba(0,0,0,0.06)",
+              }}
             >
-              {work.subCategory || work.categoryLabel}
-            </Badge>
+              <span>{work.categoryIcon}</span>
+              <span>{work.subCategory || work.categoryLabel}</span>
+            </span>
 
             {work.scores.length > 0 && (
-              <Badge size="xs" color="orange" variant="outline">
-                📄 Partitura inclusa
-              </Badge>
+              <span className="text-[10px] font-semibold text-amber-800 bg-amber-50 border border-amber-200/80 px-2 py-0.5 rounded-full">
+                📄 Partitura
+              </span>
             )}
+          </div>
 
-            <Badge size="xs" color="gray" variant="subtle">
-              🎧 {work.audios.length} {work.audios.length === 1 ? "áudio" : "áudios"}
-            </Badge>
-          </Group>
-        </Group>
+          <span className="text-[11px] font-medium text-slate-400 shrink-0">
+            {work.audios.length} {work.audios.length === 1 ? "voz" : "vozes"}
+          </span>
+        </div>
 
-        {/* Título da Obra */}
-        <Text fw={800} size="lg" c="canarinhosBlue.7" lh={1.3}>
+        {/* ============================================================== */}
+        {/* TÍTULO EDITORIAL & COMPOSITOR                                  */}
+        {/* ============================================================== */}
+        <h3 className="text-base sm:text-lg font-bold text-slate-900 leading-snug tracking-tight">
           {work.name}
-        </Text>
+        </h3>
 
-        {/* Subtítulo / Compositor / Momento */}
         {work.subtitle && (
-          <Text size="xs" c="dimmed" mt={4} mb="md">
+          <p className="text-xs text-slate-500 font-medium mt-0.5 line-clamp-1 mb-3.5">
             {work.subtitle}
-          </Text>
+          </p>
         )}
       </div>
 
-      <Stack gap="sm" mt="sm">
-        {/* Bloco de Partitura (se houver) */}
+      {/* ============================================================== */}
+      {/* DECK DE AÇÕES COMPACTO BENTO: PARTITURA + GRADE DE NAIPES      */}
+      {/* ============================================================== */}
+      <div className="space-y-2 mt-2 pt-3 border-t border-slate-100">
+        {/* Bloco de Partitura Integrada */}
         {work.scores.length > 0 && (
-          <Paper
-            p="xs"
-            radius="md"
-            style={{
-              backgroundColor: "#fffbeb",
-              border: "1px solid #fef3c7",
-            }}
-          >
-            <Group justify="space-between" align="center">
-              <Group gap="xs">
-                <ThemeIcon size={26} radius="md" color="orange" variant="light">
-                  <IconFileText size={15} />
-                </ThemeIcon>
-                <div>
-                  <Text size="xs" fw={700} c="dark.8">
-                    Partitura Geral (PDF)
-                  </Text>
-                  <Text size="11px" c="dimmed">
-                    {work.scores[0].title}
-                  </Text>
-                </div>
-              </Group>
+          <div className="flex items-center justify-between p-2 rounded-xl bg-amber-50/70 border border-amber-200/60">
+            <div className="flex items-center gap-2 min-w-0 pr-2">
+              <div className="w-6 h-6 rounded-md bg-amber-200/70 text-amber-900 flex items-center justify-center shrink-0">
+                <IconFileText size={14} />
+              </div>
+              <div className="min-w-0">
+                <p className="text-xs font-bold text-slate-900 leading-tight">
+                  Partitura Geral
+                </p>
+                <p className="text-[10px] text-slate-500 truncate">
+                  Visualizar partitura em PDF
+                </p>
+              </div>
+            </div>
 
-              <Button
-                component={Link}
-                href={`/ensaios/material/${work.scores[0].id}`}
-                size="xs"
-                variant="filled"
-                color="orange"
-                radius="md"
-                rightSection={<IconExternalLink size={13} />}
-              >
-                Abrir Partitura
-              </Button>
-            </Group>
-          </Paper>
+            <Link
+              href={`/ensaios/material/${work.scores[0].id}`}
+              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-bold bg-[#c9a227] hover:bg-[#b58f1f] text-slate-950 shrink-0 transition-colors shadow-2xs"
+            >
+              <span>Ver PDF</span>
+              <IconExternalLink size={12} />
+            </Link>
+          </div>
         )}
 
-        {/* Bloco de Áudios por Naipe */}
+        {/* Grade de Naipes de Áudio */}
         {work.audios.length > 0 && (
-          <Box>
-            <Text size="xs" fw={700} c="dimmed" tt="uppercase" mb={6}>
-              Áudios de Estudo por Naipe
-            </Text>
+          <div>
+            <div className="flex items-center justify-between mb-1.5">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                Áudios de Naipe:
+              </span>
+              <span className="text-[10px] text-slate-400">
+                Clique para praticar
+              </span>
+            </div>
 
-            <SimpleGrid cols={{ base: 1, xs: 2 }} spacing="xs">
+            <div className="grid grid-cols-2 gap-1.5">
               {work.audios.map((audio) => {
                 const voiceKey = audio.voicePart?.toLowerCase() || "";
                 const voiceConfig = VOICE_COLORS[voiceKey] || {
@@ -156,64 +148,60 @@ export function SongCard({
 
                 const buttonLabel = formatVoiceButtonLabel(audio);
 
-                // Verifica se este áudio corresponde ao filtro ativo ou ao naipe do usuário
-                const isSelectedByFilter =
+                const isSelectedByFilter = Boolean(
                   activeVoiceFilter &&
-                  (voiceKey === activeVoiceFilter ||
-                    audio.title.toLowerCase().includes(activeVoiceFilter));
+                    (voiceKey === activeVoiceFilter ||
+                      audio.title.toLowerCase().includes(activeVoiceFilter))
+                );
 
-                const isUserVoice =
-                  currentUserVoice &&
-                  (voiceKey === currentUserVoice.toLowerCase() ||
-                    audio.title.toLowerCase().includes(currentUserVoice.toLowerCase()));
+                const isUserVoice = Boolean(
+                  normalizedUserVoice &&
+                    (voiceKey === normalizedUserVoice ||
+                      audio.title.toLowerCase().includes(normalizedUserVoice))
+                );
 
                 return (
-                  <Button
+                  <Link
                     key={audio.id}
-                    component={Link}
                     href={`/ensaios/material/${audio.id}`}
-                    variant={isSelectedByFilter ? "filled" : isUserVoice ? "light" : "outline"}
-                    color={voiceConfig.color}
-                    size="xs"
-                    radius="md"
-                    fullWidth
-                    justify="space-between"
-                    leftSection={
-                      <Group gap={4}>
-                        <IconPlayerPlay size={12} />
-                        <span>{voiceConfig.badge}</span>
-                      </Group>
-                    }
-                    rightSection={
-                      isUserVoice && !isSelectedByFilter ? (
-                        <Tooltip label="Seu naipe de ensaio">
-                          <ThemeIcon size={16} radius="xl" color="yellow.8" variant="light">
-                            <IconSparkles size={10} />
-                          </ThemeIcon>
-                        </Tooltip>
-                      ) : null
-                    }
-                    style={{
-                      height: "auto",
-                      minHeight: 34,
-                      paddingTop: 6,
-                      paddingBottom: 6,
-                      fontWeight: isSelectedByFilter || isUserVoice ? 700 : 500,
-                      boxShadow: isSelectedByFilter
-                        ? "0 2px 8px rgba(0,0,0,0.12)"
-                        : undefined,
-                    }}
+                    className={`flex items-center justify-between p-2 rounded-xl text-xs font-medium border transition-all ${
+                      isSelectedByFilter
+                        ? "bg-[#1e3a5f] text-white border-[#1e3a5f] shadow-xs font-bold"
+                        : isUserVoice
+                        ? "bg-[#edf4fb] text-[#1e3a5f] border-[#accdef] font-bold hover:bg-[#d8e7f6]"
+                        : "bg-slate-50 hover:bg-slate-100 text-slate-800 border-slate-200/80"
+                    }`}
                   >
-                    <Text size="xs" truncate style={{ maxWidth: 140 }}>
-                      {buttonLabel}
-                    </Text>
-                  </Button>
+                    <div className="flex items-center gap-1.5 min-w-0 pr-1">
+                      <span className="text-xs shrink-0">{voiceConfig.badge}</span>
+                      <span className="truncate text-xs">{buttonLabel}</span>
+                    </div>
+
+                    <div className="flex items-center gap-1 shrink-0">
+                      {isUserVoice && !isSelectedByFilter && (
+                        <span
+                          title="Seu Naipe"
+                          className="w-1.5 h-1.5 rounded-full bg-[#c9a227]"
+                        />
+                      )}
+                      <IconPlayerPlay
+                        size={11}
+                        className={
+                          isSelectedByFilter
+                            ? "text-[#fde047]"
+                            : isUserVoice
+                            ? "text-[#1e3a5f]"
+                            : "text-slate-400"
+                        }
+                      />
+                    </div>
+                  </Link>
                 );
               })}
-            </SimpleGrid>
-          </Box>
+            </div>
+          </div>
         )}
-      </Stack>
-    </Card>
+      </div>
+    </div>
   );
 }

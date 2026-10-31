@@ -5,23 +5,17 @@ import {
   TextInput,
   SegmentedControl,
   Select,
-  SimpleGrid,
   Group,
   Text,
-  Paper,
-  ThemeIcon,
   Badge,
   Stack,
   Box,
   Button,
   ActionIcon,
-  Tooltip,
 } from "@mantine/core";
 import {
   IconSearch,
   IconMusic,
-  IconHeadphones,
-  IconFileText,
   IconFilter,
   IconX,
   IconSparkles,
@@ -32,27 +26,30 @@ import {
 import { MaterialCard } from "./MaterialCard";
 import { SongCard } from "./SongCard";
 import { CategoryAccordionView } from "./CategoryAccordionView";
+import { BentoCollectionsDeck } from "./BentoCollectionsDeck";
 import type { Material } from "./types";
 import {
   groupMaterialsIntoWorks,
-  CATEGORY_INFO,
-  VOICE_COLORS,
   type RepertoireWork,
 } from "@/lib/repertoireMetadata";
 
 interface MaterialsExplorerProps {
   initialMaterials: Material[];
   currentUserVoice?: string | null;
+  externalVoiceFilter?: string | null;
 }
 
 export function MaterialsExplorer({
   initialMaterials,
   currentUserVoice,
+  externalVoiceFilter,
 }: MaterialsExplorerProps) {
   const [search, setSearch] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [selectedMissa, setSelectedMissa] = useState<string>("all");
-  const [selectedVoice, setSelectedVoice] = useState<string>("all");
+  const [selectedVoice, setSelectedVoice] = useState<string>(
+    externalVoiceFilter || "all"
+  );
   const [viewMode, setViewMode] = useState<"cards" | "accordion" | "flat">("cards");
 
   // Agrupa os 97 materiais nas 25 obras musicais estruturadas
@@ -150,77 +147,113 @@ export function MaterialsExplorer({
     selectedVoice !== "all";
 
   return (
-    <Stack gap="lg">
-      {/* Barra de Filtros, Categorias e Modos de Visão */}
-      <Paper withBorder shadow="xs" p="lg" radius="md" bg="white">
-        <Stack gap="md">
-          {/* Linha 1: Categorias Principais (Abas visuais dos Canarinhos) */}
-          <Group justify="space-between" align="center" wrap="wrap" gap="xs">
-            <Group gap="xs" wrap="wrap">
-              <Button
-                size="xs"
-                radius="xl"
-                variant={selectedCategory === "all" ? "filled" : "light"}
-                color="canarinhosBlue"
-                onClick={() => {
-                  setSelectedCategory("all");
-                  setSelectedMissa("all");
-                }}
-              >
-                🌟 Todas as Obras ({categoryCounts.all})
-              </Button>
+    <div id="repertorio" className="space-y-4">
+      {/* ============================================================== */}
+      {/* 1. DECK DE COLEÇÕES BENTO (Ponto de Acesso Rápido)             */}
+      {/* ============================================================== */}
+      <BentoCollectionsDeck
+        selectedCategory={selectedCategory}
+        onSelectCategory={(cat) => {
+          setSelectedCategory(cat);
+          if (cat !== "missas") setSelectedMissa("all");
+        }}
+        counts={categoryCounts}
+      />
 
-              <Button
-                size="xs"
-                radius="xl"
-                variant={selectedCategory === "natal" ? "filled" : "light"}
-                color="red"
-                onClick={() => {
-                  setSelectedCategory("natal");
-                  setSelectedMissa("all");
-                }}
+      {/* ============================================================== */}
+      {/* 2. CONSOLE DE CONTROLE COMPACTO (Busca, Naipe & Modos)         */}
+      {/* ============================================================== */}
+      <div className="p-4 rounded-2xl bg-white border border-slate-200/90 shadow-2xs space-y-3">
+        {/* Sub-filtro de Missas (aparece apenas quando a coleção de Missas está ativa) */}
+        {selectedCategory === "missas" && (
+          <div className="flex flex-wrap items-center gap-1.5 p-2 rounded-xl bg-blue-50/70 border border-blue-200/60 text-xs">
+            <span className="font-bold text-blue-900 mr-1">
+              Celebrar:
+            </span>
+            {[
+              { id: "all", label: `Todas as Missas (${missaCounts.all})` },
+              { id: "Missa de Agosto", label: `Missa de Agosto (${missaCounts.agosto})` },
+              { id: "Missa de Maio", label: `Missa de Maio (${missaCounts.maio})` },
+              { id: "Missa de Setembro", label: `Missa de Setembro (${missaCounts.setembro})` },
+            ].map((sub) => (
+              <button
+                key={sub.id}
+                type="button"
+                onClick={() => setSelectedMissa(sub.id)}
+                className={`px-2.5 py-1 rounded-lg font-semibold transition-all ${
+                  selectedMissa === sub.id
+                    ? "bg-[#1e3a5f] text-white shadow-2xs"
+                    : "bg-white/80 hover:bg-white text-slate-700 border border-slate-200/80"
+                }`}
               >
-                🎄 Natal 2026 ({categoryCounts.natal})
-              </Button>
+                {sub.label}
+              </button>
+            ))}
+          </div>
+        )}
 
-              <Button
-                size="xs"
-                radius="xl"
-                variant={selectedCategory === "missas" ? "filled" : "light"}
-                color="blue"
-                onClick={() => setSelectedCategory("missas")}
-              >
-                ⛪ Missas & Liturgia ({categoryCounts.missas})
-              </Button>
+        {/* Linha Principal de Ferramentas */}
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5">
+          {/* Campo de Busca Rápida */}
+          <div className="relative flex-1 min-w-[240px]">
+            <TextInput
+              placeholder="Buscar por obra, compositor (Mozart, Rutter...), trecho..."
+              value={search}
+              onChange={(e) => setSearch(e.currentTarget.value)}
+              leftSection={<IconSearch size={15} className="text-slate-400" />}
+              rightSection={
+                search ? (
+                  <ActionIcon
+                    size="xs"
+                    variant="subtle"
+                    color="gray"
+                    onClick={() => setSearch("")}
+                  >
+                    <IconX size={12} />
+                  </ActionIcon>
+                ) : null
+              }
+              radius="md"
+              size="sm"
+              styles={{
+                input: {
+                  backgroundColor: "#f8fafc",
+                  borderColor: "#e2e8f0",
+                  fontSize: "13px",
+                },
+              }}
+            />
+          </div>
 
-              <Button
-                size="xs"
-                radius="xl"
-                variant={selectedCategory === "classicos" ? "filled" : "light"}
-                color="violet"
-                onClick={() => {
-                  setSelectedCategory("classicos");
-                  setSelectedMissa("all");
-                }}
-              >
-                🎼 Clássico & Sacro ({categoryCounts.classicos})
-              </Button>
+          {/* Filtro Rápido por Naipe */}
+          <div className="flex items-center gap-2">
+            <Select
+              placeholder="Filtrar Naipe"
+              value={selectedVoice}
+              onChange={(val) => setSelectedVoice(val || "all")}
+              radius="md"
+              size="sm"
+              leftSection={<IconFilter size={14} className="text-slate-400" />}
+              data={[
+                { label: "Todos os Naipes", value: "all" },
+                { label: "🌸 Soprano", value: "soprano" },
+                { label: "🍇 Contralto", value: "contralto" },
+                { label: "🔷 Tenor", value: "tenor" },
+                { label: "🟦 Baixo", value: "baixo" },
+                { label: "🎵 Barítono", value: "baritono" },
+              ]}
+              style={{ width: 165 }}
+              styles={{
+                input: {
+                  backgroundColor: "#f8fafc",
+                  borderColor: "#e2e8f0",
+                  fontSize: "13px",
+                  fontWeight: 600,
+                },
+              }}
+            />
 
-              <Button
-                size="xs"
-                radius="xl"
-                variant={selectedCategory === "mpb" ? "filled" : "light"}
-                color="teal"
-                onClick={() => {
-                  setSelectedCategory("mpb");
-                  setSelectedMissa("all");
-                }}
-              >
-                🎵 MPB & Coral ({categoryCounts.mpb})
-              </Button>
-            </Group>
-
-            {/* Alternador do Modo de Visão */}
+            {/* Alternador do Modo de Exibição */}
             <SegmentedControl
               size="xs"
               radius="md"
@@ -230,186 +263,85 @@ export function MaterialsExplorer({
                 {
                   value: "cards",
                   label: (
-                    <Group gap={4}>
-                      <IconLayoutGrid size={14} />
-                      <span>Por Obra</span>
-                    </Group>
+                    <div className="flex items-center gap-1 font-semibold">
+                      <IconLayoutGrid size={13} />
+                      <span className="hidden md:inline">Obras</span>
+                    </div>
                   ),
                 },
                 {
                   value: "accordion",
                   label: (
-                    <Group gap={4}>
-                      <IconFolder size={14} />
-                      <span>Pastas / Sanfona</span>
-                    </Group>
+                    <div className="flex items-center gap-1 font-semibold">
+                      <IconFolder size={13} />
+                      <span className="hidden md:inline">Pastas</span>
+                    </div>
                   ),
                 },
                 {
                   value: "flat",
                   label: (
-                    <Group gap={4}>
-                      <IconListDetails size={14} />
-                      <span>Arquivos Avulsos</span>
-                    </Group>
+                    <div className="flex items-center gap-1 font-semibold">
+                      <IconListDetails size={13} />
+                      <span className="hidden md:inline">Lista</span>
+                    </div>
                   ),
                 },
               ]}
-            />
-          </Group>
-
-          {/* Sub-filtro de Missas (aparece quando categoria é Missas) */}
-          {selectedCategory === "missas" && (
-            <Group
-              gap="xs"
-              p="xs"
-              style={{
-                backgroundColor: "#f0f7ff",
-                borderRadius: "8px",
-                border: "1px dashed #bae6fd",
+              styles={{
+                root: {
+                  backgroundColor: "#f1f5f9",
+                  border: "1px solid #e2e8f0",
+                },
               }}
+            />
+          </div>
+        </div>
+
+        {/* Linha de Feedback e Limpeza de Filtros */}
+        <div className="flex items-center justify-between text-xs pt-2 border-t border-slate-100">
+          <span className="text-slate-500 font-medium">
+            Exibindo <strong className="text-slate-900">{filteredWorks.length}</strong> de{" "}
+            {allWorks.length} obras musicais ({flatMaterials.length} materiais disponíveis)
+          </span>
+
+          {isFiltered && (
+            <button
+              type="button"
+              onClick={handleClearFilters}
+              className="text-xs font-semibold text-slate-500 hover:text-slate-900 underline flex items-center gap-1"
             >
-              <Text size="xs" fw={700} c="canarinhosBlue.7">
-                Filtrar Celebração:
-              </Text>
-              <Button
-                size="xs"
-                radius="md"
-                variant={selectedMissa === "all" ? "filled" : "subtle"}
-                color="blue"
-                onClick={() => setSelectedMissa("all")}
-              >
-                Todas as Missas ({missaCounts.all})
-              </Button>
-              <Button
-                size="xs"
-                radius="md"
-                variant={selectedMissa === "Missa de Agosto" ? "filled" : "subtle"}
-                color="blue"
-                onClick={() => setSelectedMissa("Missa de Agosto")}
-              >
-                Missa de Agosto ({missaCounts.agosto})
-              </Button>
-              <Button
-                size="xs"
-                radius="md"
-                variant={selectedMissa === "Missa de Maio" ? "filled" : "subtle"}
-                color="blue"
-                onClick={() => setSelectedMissa("Missa de Maio")}
-              >
-                Missa de Maio ({missaCounts.maio})
-              </Button>
-              <Button
-                size="xs"
-                radius="md"
-                variant={selectedMissa === "Missa de Setembro" ? "filled" : "subtle"}
-                color="blue"
-                onClick={() => setSelectedMissa("Missa de Setembro")}
-              >
-                Missa de Setembro ({missaCounts.setembro})
-              </Button>
-            </Group>
+              <IconX size={12} />
+              Limpar filtros
+            </button>
           )}
+        </div>
+      </div>
 
-          {/* Linha 2: Busca Textual + Filtro de Naipe */}
-          <Group justify="space-between" align="center" wrap="wrap" gap="md">
-            {/* Campo de Busca */}
-            <TextInput
-              placeholder="Buscar por nome da música, compositor (ex: Mozart, Rutter), trecho..."
-              value={search}
-              onChange={(e) => setSearch(e.currentTarget.value)}
-              leftSection={<IconSearch size={16} />}
-              rightSection={
-                search ? (
-                  <ActionIcon size="xs" variant="subtle" color="gray" onClick={() => setSearch("")}>
-                    <IconX size={12} />
-                  </ActionIcon>
-                ) : null
-              }
-              radius="md"
-              style={{ flex: 1, minWidth: 260 }}
-            />
-
-            {/* Filtro Rápido por Naipe */}
-            <Select
-              placeholder="Filtrar por Naipe"
-              value={selectedVoice}
-              onChange={(val) => setSelectedVoice(val || "all")}
-              radius="md"
-              leftSection={<IconFilter size={14} />}
-              data={[
-                { label: "Todos os Naipes", value: "all" },
-                { label: "🌸 Soprano", value: "soprano" },
-                { label: "🍇 Contralto", value: "contralto" },
-                { label: "🔷 Tenor", value: "tenor" },
-                { label: "🟦 Baixo", value: "baixo" },
-                { label: "🎵 Barítono", value: "baritono" },
-              ]}
-              style={{ width: 180 }}
-            />
-
-            {/* Botão Rápido: Meu Naipe */}
-            {currentUserVoice && (
-              <Button
-                size="sm"
-                radius="md"
-                variant={selectedVoice.toLowerCase() === currentUserVoice.toLowerCase() ? "filled" : "outline"}
-                color="yellow.8"
-                leftSection={<IconSparkles size={14} />}
-                onClick={() => {
-                  if (selectedVoice.toLowerCase() === currentUserVoice.toLowerCase()) {
-                    setSelectedVoice("all");
-                  } else {
-                    setSelectedVoice(currentUserVoice.toLowerCase());
-                  }
-                }}
-              >
-                Meu Naipe: {currentUserVoice}
-              </Button>
-            )}
-          </Group>
-
-          {/* Linha 3: Resumo dos Resultados e Limpar Filtros */}
-          <Group justify="space-between" align="center" pt="xs" style={{ borderTop: "1px solid #f1f5f9" }}>
-            <Text size="xs" c="dimmed">
-              Exibindo <strong>{filteredWorks.length}</strong> de {allWorks.length} obras musicais{" "}
-              (<strong>{flatMaterials.length}</strong> materiais de estudo disponíveis)
-            </Text>
-
-            {isFiltered && (
-              <Button
-                size="xs"
-                variant="subtle"
-                color="gray"
-                leftSection={<IconX size={12} />}
-                onClick={handleClearFilters}
-              >
-                Limpar todos os filtros
-              </Button>
-            )}
-          </Group>
-        </Stack>
-      </Paper>
-
-      {/* Conteúdo Principal de Acordo com o Modo de Visão */}
+      {/* ============================================================== */}
+      {/* 3. GRADE BENTO PRINCIPAL DE OBRAS MUSICAIS                     */}
+      {/* ============================================================== */}
       {filteredWorks.length === 0 ? (
-        <Paper withBorder p={40} radius="md" ta="center" bg="white">
-          <ThemeIcon size={48} radius="xl" color="gray" variant="light" mb="md">
+        <div className="p-10 rounded-2xl bg-white border border-slate-200/90 text-center shadow-2xs">
+          <div className="w-12 h-12 rounded-xl bg-slate-100 text-slate-400 mx-auto flex items-center justify-center mb-3">
             <IconMusic size={24} />
-          </ThemeIcon>
-          <Text fw={700} size="md" c="dark.7">
-            Nenhuma música encontrada
-          </Text>
-          <Text size="sm" c="dimmed" mt={4} mb="md">
-            Tente buscar por outro termo ou limpar os filtros de categoria e naipe.
-          </Text>
-          <Button size="xs" variant="outline" color="canarinhosBlue" onClick={handleClearFilters}>
-            Ver todo o repertório
-          </Button>
-        </Paper>
+          </div>
+          <h3 className="text-sm font-bold text-slate-900">
+            Nenhuma obra encontrada para estes filtros
+          </h3>
+          <p className="text-xs text-slate-500 max-w-sm mx-auto mt-1 mb-4">
+            Tente buscar por outro termo ou limpar os filtros de coleção e naipe.
+          </p>
+          <button
+            type="button"
+            onClick={handleClearFilters}
+            className="px-3.5 py-1.5 rounded-xl bg-[#1e3a5f] text-white text-xs font-bold hover:bg-[#162c4a] transition-colors"
+          >
+            Ver Todo o Repertório
+          </button>
+        </div>
       ) : viewMode === "cards" ? (
-        /* Visão 1: Cards Agrupados por Música (Obras) */
-        <SimpleGrid cols={{ base: 1, md: 2 }} spacing="lg">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
           {filteredWorks.map((work) => (
             <SongCard
               key={work.id}
@@ -418,22 +350,20 @@ export function MaterialsExplorer({
               currentUserVoice={currentUserVoice}
             />
           ))}
-        </SimpleGrid>
+        </div>
       ) : viewMode === "accordion" ? (
-        /* Visão 2: Sanfona / Pastas por Coleção Litúrgica e Temática */
         <CategoryAccordionView
           works={filteredWorks}
           selectedVoice={selectedVoice}
           currentUserVoice={currentUserVoice}
         />
       ) : (
-        /* Visão 3: Grade Plana de Arquivos Avulsos (para visualização individual) */
-        <SimpleGrid cols={{ base: 1, sm: 2, lg: 3 }} spacing="md">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
           {flatMaterials.map((m) => (
             <MaterialCard key={m.id} material={m} />
           ))}
-        </SimpleGrid>
+        </div>
       )}
-    </Stack>
+    </div>
   );
 }

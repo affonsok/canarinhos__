@@ -1,29 +1,14 @@
 "use client";
 
+import { useState } from "react";
+import { Container, Tabs, Box } from "@mantine/core";
 import {
-  Container,
-  Title,
-  Text,
-  SimpleGrid,
-  Paper,
-  Group,
-  ThemeIcon,
-  Badge,
-  Stack,
-  Box,
-  Tabs,
-} from "@mantine/core";
-import {
-  IconFlame,
-  IconHeadphones,
-  IconBell,
-  IconSparkles,
   IconMusic,
   IconCalendarEvent,
   IconTrophy,
   IconUsersGroup,
 } from "@tabler/icons-react";
-import { AnnouncementCard } from "@/components/AnnouncementCard";
+import { BentoHeroCockpit } from "@/components/BentoHeroCockpit";
 import { MaterialsExplorer } from "@/components/MaterialsExplorer";
 import { ChoirRanking, type RankingUser } from "@/components/ChoirRanking";
 import { EventsManager, type EventItem } from "@/components/EventsManager";
@@ -53,161 +38,112 @@ export function EnsaiosDashboard({
   events,
   students,
 }: EnsaiosDashboardProps) {
+  const [activeTab, setActiveTab] = useState<string | null>("repertorio");
+  const [quickVoiceFilter, setQuickVoiceFilter] = useState<string | null>(null);
+
+  const nextEvent = events[0];
+
+  const handleQuickFilterVoice = (voice: string) => {
+    setQuickVoiceFilter(voice);
+    setActiveTab("repertorio");
+  };
+
   return (
-    <Box py="xl" style={{ backgroundColor: "#f8fafc", minHeight: "100vh" }}>
-      <Container size="lg">
-        {/* Header do Aluno */}
-        <Box mb="xl">
-          <Group justify="space-between" align="flex-end">
-            <div>
-              <Badge
-                color="yellow.7"
-                variant="light"
-                size="md"
-                leftSection={<IconSparkles size={14} />}
-                mb={6}
+    <Box py="xl" className="bg-[#f8fafc] min-h-screen">
+      <Container size="lg" className="px-3 sm:px-4 md:px-6">
+        {/* ============================================================== */}
+        {/* 1. BENTO HERO COCKPIT: O CENTRO DE GRAVIDADE DA TELA           */}
+        {/* ============================================================== */}
+        <BentoHeroCockpit
+          user={user}
+          stats={stats}
+          nextEvent={nextEvent}
+          announcements={announcements}
+          ranking={ranking}
+          onQuickFilterVoice={handleQuickFilterVoice}
+        />
+
+        {/* ============================================================== */}
+        {/* 2. CONSOLE BENTO DE NAVEGAÇÃO ENTRE MÓDULOS                   */}
+        {/* ============================================================== */}
+        <Tabs
+          value={activeTab}
+          onChange={setActiveTab}
+          color="canarinhosBlue"
+          radius="md"
+        >
+          <div className="bg-white p-1.5 rounded-2xl border border-slate-200/90 shadow-2xs mb-5 overflow-x-auto">
+            <Tabs.List className="border-none flex-nowrap min-w-max">
+              <Tabs.Tab
+                value="repertorio"
+                leftSection={<IconMusic size={15} />}
+                className="font-bold text-xs sm:text-sm py-2 px-3.5 rounded-xl transition-all"
               >
-                Canarinhos de Campo Largo • Portal do Aluno
-              </Badge>
-              <Title order={1} fw={900} c="canarinhosBlue.7">
-                Área de Ensaios & Repertório
-              </Title>
-              <Text size="md" c="dimmed" mt={4}>
-                Olá, <strong>{user.name || user.email}</strong>. Acesse suas partituras,
-                áudios de naipe e compromissos do coro.
-              </Text>
-            </div>
-          </Group>
-        </Box>
+                Repertório Geral ({materials.length > 0 ? "25 Obras" : "0"})
+              </Tabs.Tab>
 
-        {/* Stats Grid */}
-        <SimpleGrid cols={{ base: 1, sm: 3 }} spacing="md" mb="xl">
-          <Paper withBorder p="md" radius="md" bg="white" shadow="xs">
-            <Group justify="space-between" align="flex-start">
-              <Text size="xs" c="dimmed" fw={700} tt="uppercase">
-                Seus Ensaios Nesta Semana
-              </Text>
-              <ThemeIcon color="orange" variant="light" size="md" radius="md">
-                <IconFlame size={18} />
-              </ThemeIcon>
-            </Group>
-            <Group align="flex-end" gap="xs" mt={10}>
-              <Text fw={800} size="1.8rem" lh={1} c="dark.8">
-                {stats.weekSessions}
-              </Text>
-              <Text size="xs" c={stats.weekSessions > 0 ? "teal" : "dimmed"} fw={600}>
-                {stats.weekSessions > 0 ? "sessão(ões) ativa(s)" : "nenhuma sessão ainda"}
-              </Text>
-            </Group>
-          </Paper>
+              <Tabs.Tab
+                value="eventos"
+                leftSection={<IconCalendarEvent size={15} />}
+                className="font-bold text-xs sm:text-sm py-2 px-3.5 rounded-xl transition-all"
+              >
+                Agenda de Compromissos ({events.length})
+              </Tabs.Tab>
 
-          <Paper withBorder p="md" radius="md" bg="white" shadow="xs">
-            <Group justify="space-between" align="flex-start">
-              <Text size="xs" c="dimmed" fw={700} tt="uppercase">
-                Total Acumulado
-              </Text>
-              <ThemeIcon color="canarinhosBlue" variant="light" size="md" radius="md">
-                <IconHeadphones size={18} />
-              </ThemeIcon>
-            </Group>
-            <Group align="flex-end" gap="xs" mt={10}>
-              <Text fw={800} size="1.8rem" lh={1} c="dark.8">
-                {stats.totalSessions}
-              </Text>
-              <Text size="xs" c="dimmed">
-                gravações estudadas
-              </Text>
-            </Group>
-          </Paper>
+              <Tabs.Tab
+                value="ranking"
+                leftSection={<IconTrophy size={15} />}
+                className="font-bold text-xs sm:text-sm py-2 px-3.5 rounded-xl transition-all"
+              >
+                Ranking de Dedicação ({ranking.length})
+              </Tabs.Tab>
 
-          <Paper withBorder p="md" radius="md" bg="white" shadow="xs">
-            <Group justify="space-between" align="flex-start">
-              <Text size="xs" c="dimmed" fw={700} tt="uppercase">
-                Próximo Compromisso
-              </Text>
-              <ThemeIcon color="yellow.7" variant="light" size="md" radius="md">
-                <IconCalendarEvent size={18} />
-              </ThemeIcon>
-            </Group>
-            <Group align="flex-end" gap="xs" mt={10}>
-              <Text fw={700} size="0.95rem" lh={1.3} c="canarinhosBlue.7" lineClamp={1}>
-                {events[0] ? events[0].title : "Nenhum no momento"}
-              </Text>
-            </Group>
-          </Paper>
-        </SimpleGrid>
+              <Tabs.Tab
+                value="alunos"
+                leftSection={<IconUsersGroup size={15} />}
+                className="font-bold text-xs sm:text-sm py-2 px-3.5 rounded-xl transition-all"
+              >
+                Gestão de Alunos ({students.length})
+              </Tabs.Tab>
+            </Tabs.List>
+          </div>
 
-        {/* Abas Principais: Repertório / Compromissos / Ranking / Gestão de Alunos */}
-        <Tabs defaultValue="repertorio" color="canarinhosBlue" radius="md">
-          <Tabs.List mb="xl">
-            <Tabs.Tab
-              value="repertorio"
-              leftSection={<IconMusic size={16} />}
-              style={{ fontWeight: 600, fontSize: "15px" }}
-            >
-              Repertório (25 Obras)
-            </Tabs.Tab>
-            <Tabs.Tab
-              value="eventos"
-              leftSection={<IconCalendarEvent size={16} />}
-              style={{ fontWeight: 600, fontSize: "15px" }}
-            >
-              Compromissos ({events.length})
-            </Tabs.Tab>
-            <Tabs.Tab
-              value="ranking"
-              leftSection={<IconTrophy size={16} />}
-              style={{ fontWeight: 600, fontSize: "15px" }}
-            >
-              Ranking de Dedicação ({ranking.length})
-            </Tabs.Tab>
-            <Tabs.Tab
-              value="alunos"
-              leftSection={<IconUsersGroup size={16} />}
-              style={{ fontWeight: 600, fontSize: "15px" }}
-            >
-              Gestão de Alunos ({students.length})
-            </Tabs.Tab>
-          </Tabs.List>
-
-          {/* Aba 1: Repertório & Músicas */}
+          {/* ============================================================ */}
+          {/* PAINEL 1: O GRANDE ACERVO DE REPERTÓRIO BENTO                */}
+          {/* ============================================================ */}
           <Tabs.Panel value="repertorio">
-            <Stack gap="xl">
-              {announcements.length > 0 && (
-                <Box>
-                  <Group justify="space-between" mb="xs">
-                    <Text fw={700} size="sm" c="dimmed" tt="uppercase">
-                      Avisos Importantes da Regência
-                    </Text>
-                  </Group>
-                  <SimpleGrid cols={{ base: 1, md: 2 }} spacing="md">
-                    {announcements.map((a) => (
-                      <AnnouncementCard key={a.id} announcement={a} />
-                    ))}
-                  </SimpleGrid>
-                </Box>
-              )}
-
-              <MaterialsExplorer
-                initialMaterials={materials}
-                currentUserVoice={user.voicePart}
-              />
-            </Stack>
+            <MaterialsExplorer
+              initialMaterials={materials}
+              currentUserVoice={user.voicePart}
+              externalVoiceFilter={quickVoiceFilter}
+            />
           </Tabs.Panel>
 
-          {/* Aba 2: Compromissos & Repertório Vinculado */}
+          {/* ============================================================ */}
+          {/* PAINEL 2: AGENDA DE EVENTOS & OBRAS VINCULADAS               */}
+          {/* ============================================================ */}
           <Tabs.Panel value="eventos">
-            <EventsManager initialEvents={events} allMaterials={materials} />
+            <div className="bg-white p-5 rounded-2xl border border-slate-200/90 shadow-2xs">
+              <EventsManager initialEvents={events} allMaterials={materials} />
+            </div>
           </Tabs.Panel>
 
-          {/* Aba 3: Ranking de Dedicação Vocal */}
+          {/* ============================================================ */}
+          {/* PAINEL 3: RANKING DE DEDICAÇÃO VOCAL                         */}
+          {/* ============================================================ */}
           <Tabs.Panel value="ranking">
-            <ChoirRanking ranking={ranking} />
+            <div className="bg-white p-5 rounded-2xl border border-slate-200/90 shadow-2xs">
+              <ChoirRanking ranking={ranking} />
+            </div>
           </Tabs.Panel>
 
-          {/* Aba 4: Gestão de Alunos (CRUD) */}
+          {/* ============================================================ */}
+          {/* PAINEL 4: CRUD / GESTÃO DE ALUNOS                            */}
+          {/* ============================================================ */}
           <Tabs.Panel value="alunos">
-            <StudentsManager initialStudents={students} />
+            <div className="bg-white p-5 rounded-2xl border border-slate-200/90 shadow-2xs">
+              <StudentsManager initialStudents={students} />
+            </div>
           </Tabs.Panel>
         </Tabs>
       </Container>

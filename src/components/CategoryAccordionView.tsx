@@ -3,21 +3,14 @@
 import Link from "next/link";
 import {
   Accordion,
-  Paper,
   Text,
   Badge,
   Group,
-  ThemeIcon,
   Button,
-  Stack,
-  Box,
-  Divider,
 } from "@mantine/core";
 import {
   IconFileText,
   IconPlayerPlay,
-  IconFolder,
-  IconArrowRight,
 } from "@tabler/icons-react";
 import type { RepertoireWork } from "@/lib/repertoireMetadata";
 import {
@@ -36,21 +29,7 @@ export function CategoryAccordionView({
   selectedVoice,
   currentUserVoice,
 }: CategoryAccordionViewProps) {
-  // Agrupa as obras por seção lógica para o Accordion:
-  // 1. Especial de Natal 2026
-  // 2. Missas: Missa de Agosto
-  // 3. Missas: Missa de Maio
-  // 4. Missas: Missa de Setembro
-  // 5. Clássicos & Sacro
-  // 6. MPB & Coral Geral
-
-  const sections: {
-    id: string;
-    title: string;
-    icon: string;
-    color: string;
-    works: RepertoireWork[];
-  }[] = [
+  const sections = [
     {
       id: "natal-2026",
       title: "Especial de Natal 2026",
@@ -60,49 +39,53 @@ export function CategoryAccordionView({
     },
     {
       id: "missa-agosto",
-      title: "Missa de Agosto (Missa Simplex & Solenes)",
+      title: "Missa de Agosto (Missa Simplex & Cantos Solenes)",
       icon: "⛪",
       color: "blue",
-      works: works.filter((w) => w.category === "missas" && w.subCategory === "Missa de Agosto"),
+      works: works.filter(
+        (w) => w.category === "missas" && w.subCategory === "Missa de Agosto"
+      ),
     },
     {
       id: "missa-maio",
       title: "Missa de Maio (Ave Maria, Mãos Abertas, Panis Angelicus)",
       icon: "⛪",
       color: "cyan",
-      works: works.filter((w) => w.category === "missas" && w.subCategory === "Missa de Maio"),
+      works: works.filter(
+        (w) => w.category === "missas" && w.subCategory === "Missa de Maio"
+      ),
     },
     {
       id: "missa-setembro",
       title: "Missa de Setembro (São Vicente de Paulo)",
       icon: "⛪",
       color: "indigo",
-      works: works.filter((w) => w.category === "missas" && w.subCategory === "Missa de Setembro"),
+      works: works.filter(
+        (w) => w.category === "missas" && w.subCategory === "Missa de Setembro"
+      ),
     },
     {
       id: "classicos",
-      title: "Repertório Clássico & Obras Sacras",
+      title: "Repertório Clássico & Motetos Sacros",
       icon: "🎼",
       color: "violet",
       works: works.filter((w) => w.category === "classicos"),
     },
     {
       id: "mpb",
-      title: "MPB, Trilha Sonora & Repertório Geral",
+      title: "MPB, Trilha Sonora & Coral Geral",
       icon: "🎵",
       color: "teal",
       works: works.filter((w) => w.category === "mpb"),
     },
   ];
 
-  // Filtra apenas seções que têm obras após os filtros de busca/naipe
   const activeSections = sections.filter((s) => s.works.length > 0);
 
   if (activeSections.length === 0) {
     return null;
   }
 
-  // Por padrão, abre as seções que têm itens
   const defaultOpenedValues = activeSections.map((s) => s.id);
 
   return (
@@ -110,122 +93,115 @@ export function CategoryAccordionView({
       multiple
       defaultValue={defaultOpenedValues}
       variant="separated"
-      radius="md"
+      radius="lg"
     >
       {activeSections.map((sec) => (
         <Accordion.Item
           key={sec.id}
           value={sec.id}
-          style={{
-            backgroundColor: "#ffffff",
-            border: "1px solid #e2e8f0",
-            marginBottom: 12,
-          }}
+          className="bg-white border border-slate-200/90 rounded-2xl mb-3 overflow-hidden shadow-2xs"
         >
-          <Accordion.Control>
-            <Group justify="space-between" pr="md">
-              <Group gap="sm">
-                <Text size="1.2rem">{sec.icon}</Text>
-                <div>
-                  <Text fw={700} size="md" c="dark.8">
+          <Accordion.Control className="px-4 py-3 hover:bg-slate-50/70 transition-colors">
+            <div className="flex items-center justify-between pr-3">
+              <div className="flex items-center gap-2.5">
+                <span className="text-xl leading-none">{sec.icon}</span>
+                <div className="text-left">
+                  <h4 className="text-sm font-bold text-slate-900 leading-tight">
                     {sec.title}
-                  </Text>
-                  <Text size="xs" c="dimmed">
-                    {sec.works.length} {sec.works.length === 1 ? "música" : "músicas catalogadas"}
-                  </Text>
+                  </h4>
+                  <p className="text-[11px] text-slate-400 font-medium">
+                    {sec.works.length}{" "}
+                    {sec.works.length === 1 ? "música catalogada" : "músicas catalogadas"}
+                  </p>
                 </div>
-              </Group>
+              </div>
 
-              <Badge color={sec.color} variant="light" size="sm">
+              <span className="text-[11px] font-bold px-2 py-0.5 rounded-md bg-slate-100 text-slate-600">
                 {sec.works.reduce((acc, w) => acc + w.allMaterials.length, 0)} materiais
-              </Badge>
-            </Group>
+              </span>
+            </div>
           </Accordion.Control>
 
-          <Accordion.Panel>
-            <Stack gap="md" pt="xs">
-              {sec.works.map((work, idx) => (
-                <Paper
+          <Accordion.Panel className="px-3 pb-3 pt-1">
+            <div className="space-y-2">
+              {sec.works.map((work) => (
+                <div
                   key={work.id}
-                  withBorder
-                  p="sm"
-                  radius="md"
-                  style={{
-                    backgroundColor: idx % 2 === 0 ? "#ffffff" : "#fbfcfe",
-                    borderColor: "#f1f5f9",
-                  }}
+                  className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 rounded-xl bg-slate-50/70 border border-slate-200/70 hover:bg-white hover:border-slate-300 transition-all"
                 >
-                  <Group justify="space-between" align="flex-start" wrap="wrap" gap="sm">
-                    {/* Informações da Música */}
-                    <Box style={{ flex: 1, minWidth: 220 }}>
-                      <Text fw={700} size="sm" c="canarinhosBlue.7">
+                  <div className="min-w-0 pr-2">
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-bold text-slate-900 truncate">
                         {work.name}
-                      </Text>
-                      {work.subtitle && (
-                        <Text size="xs" c="dimmed">
-                          {work.subtitle}
-                        </Text>
-                      )}
-                    </Box>
-
-                    {/* Botão de Partitura e Botões dos Naipes */}
-                    <Group gap="xs" wrap="wrap" align="center">
-                      {/* Partitura */}
+                      </span>
                       {work.scores.length > 0 && (
-                        <Button
-                          component={Link}
-                          href={`/ensaios/material/${work.scores[0].id}`}
-                          size="xs"
-                          color="orange"
-                          variant="light"
-                          radius="md"
-                          leftSection={<IconFileText size={13} />}
-                        >
-                          Partitura
-                        </Button>
+                        <span className="text-[10px] font-semibold text-amber-800 bg-amber-100/70 px-1.5 py-0.2 rounded">
+                          PDF
+                        </span>
                       )}
+                    </div>
+                    {work.subtitle && (
+                      <p className="text-xs text-slate-500 font-medium truncate mt-0.5">
+                        {work.subtitle}
+                      </p>
+                    )}
+                  </div>
 
-                      {/* Naipes */}
-                      {work.audios.map((audio) => {
-                        const voiceKey = audio.voicePart?.toLowerCase() || "";
-                        const voiceConfig = VOICE_COLORS[voiceKey] || {
-                          color: "blue",
-                          badge: "🎧",
-                        };
+                  <div className="flex flex-wrap items-center gap-1.5 shrink-0">
+                    {/* Botão de Partitura */}
+                    {work.scores.length > 0 && (
+                      <Link
+                        href={`/ensaios/material/${work.scores[0].id}`}
+                        className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-bold bg-amber-100 hover:bg-amber-200 text-amber-900 border border-amber-200 transition-colors"
+                      >
+                        <IconFileText size={13} />
+                        <span>Partitura</span>
+                      </Link>
+                    )}
 
-                        const buttonLabel = formatVoiceButtonLabel(audio);
+                    {/* Naipes */}
+                    {work.audios.map((audio) => {
+                      const voiceKey = audio.voicePart?.toLowerCase() || "";
+                      const voiceConfig = VOICE_COLORS[voiceKey] || {
+                        badge: "🎧",
+                      };
 
-                        const isSelectedByFilter =
-                          selectedVoice &&
+                      const buttonLabel = formatVoiceButtonLabel(audio);
+
+                      const isSelectedByFilter = Boolean(
+                        selectedVoice &&
                           selectedVoice !== "all" &&
                           (voiceKey === selectedVoice.toLowerCase() ||
-                            audio.title.toLowerCase().includes(selectedVoice.toLowerCase()));
+                            audio.title.toLowerCase().includes(selectedVoice.toLowerCase()))
+                      );
 
-                        const isUserVoice =
-                          currentUserVoice &&
+                      const isUserVoice = Boolean(
+                        currentUserVoice &&
                           (voiceKey === currentUserVoice.toLowerCase() ||
-                            audio.title.toLowerCase().includes(currentUserVoice.toLowerCase()));
+                            audio.title.toLowerCase().includes(currentUserVoice.toLowerCase()))
+                      );
 
-                        return (
-                          <Button
-                            key={audio.id}
-                            component={Link}
-                            href={`/ensaios/material/${audio.id}`}
-                            size="xs"
-                            variant={isSelectedByFilter ? "filled" : isUserVoice ? "light" : "subtle"}
-                            color={voiceConfig.color}
-                            radius="md"
-                            leftSection={<IconPlayerPlay size={11} />}
-                          >
-                            {buttonLabel}
-                          </Button>
-                        );
-                      })}
-                    </Group>
-                  </Group>
-                </Paper>
+                      return (
+                        <Link
+                          key={audio.id}
+                          href={`/ensaios/material/${audio.id}`}
+                          className={`inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium border transition-colors ${
+                            isSelectedByFilter
+                              ? "bg-[#1e3a5f] text-white border-[#1e3a5f] font-bold"
+                              : isUserVoice
+                              ? "bg-[#edf4fb] text-[#1e3a5f] border-[#accdef] font-bold"
+                              : "bg-white hover:bg-slate-100 text-slate-800 border-slate-200"
+                          }`}
+                        >
+                          <IconPlayerPlay size={11} />
+                          <span>{buttonLabel}</span>
+                        </Link>
+                      );
+                    })}
+                  </div>
+                </div>
               ))}
-            </Stack>
+            </div>
           </Accordion.Panel>
         </Accordion.Item>
       ))}

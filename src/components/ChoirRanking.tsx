@@ -1,24 +1,19 @@
 "use client";
 
 import {
-  Paper,
-  Title,
-  Text,
-  Group,
   Table,
   Badge,
   ThemeIcon,
-  SimpleGrid,
-  Box,
-  Stack,
+  Group,
+  Text,
   RingProgress,
+  Box,
 } from "@mantine/core";
 import {
   IconTrophy,
   IconFlame,
   IconClock,
   IconUser,
-  IconHeadphones,
   IconMedal,
 } from "@tabler/icons-react";
 
@@ -48,174 +43,131 @@ export function ChoirRanking({ ranking }: { ranking: RankingUser[] }) {
   const rest = ranking.slice(3);
 
   return (
-    <Stack gap="xl">
-      {/* Pódio dos 3 Primeiros */}
+    <div className="space-y-6">
+      {/* Cabeçalho do Ranking */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-4 border-b border-slate-100">
+        <div>
+          <div className="flex items-center gap-2">
+            <span className="p-1.5 rounded-lg bg-amber-100 text-[#a98418]">
+              <IconTrophy size={18} />
+            </span>
+            <h3 className="text-base sm:text-lg font-bold text-slate-900 tracking-tight">
+              Ranking de Dedicação Vocal dos Canarinhos
+            </h3>
+          </div>
+          <p className="text-xs text-slate-500 mt-1">
+            Pontuação baseada na constância semanal de treinos e minutos de escuta das gravações de naipe.
+          </p>
+        </div>
+
+        <span className="text-xs font-semibold px-2.5 py-1 rounded-md bg-slate-100 text-slate-600 self-start sm:self-auto">
+          {ranking.length} cantores ativos
+        </span>
+      </div>
+
+      {/* Pódio Bento dos 3 Primeiros */}
       {topThree.length > 0 && (
-        <SimpleGrid cols={{ base: 1, sm: 3 }} spacing="md">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           {topThree.map((user, idx) => {
             const isFirst = idx === 0;
-            const borderColor =
-              idx === 0 ? "#c9a227" : idx === 1 ? "#94a3b8" : "#d97706";
-            const bgGradient =
-              idx === 0
-                ? "linear-gradient(135deg, #fef9e8 0%, #fff 100%)"
-                : "white";
+            const rankLabel = idx === 0 ? "1º Lugar" : idx === 1 ? "2º Lugar" : "3º Lugar";
+            const medalEmoji = idx === 0 ? "🥇" : idx === 1 ? "🥈" : "🥉";
 
             return (
-              <Paper
+              <div
                 key={user.id}
-                withBorder
-                p="lg"
-                radius="md"
-                shadow={isFirst ? "md" : "xs"}
-                style={{
-                  background: bgGradient,
-                  borderColor,
-                  borderWidth: isFirst ? 2 : 1,
-                  position: "relative",
-                  overflow: "hidden",
-                }}
+                className={`p-4 rounded-2xl border transition-all relative overflow-hidden flex flex-col justify-between ${
+                  isFirst
+                    ? "bg-amber-50/40 border-[#c9a227] shadow-xs"
+                    : "bg-white border-slate-200/90 shadow-2xs"
+                }`}
               >
-                <Group justify="space-between" align="flex-start" mb="xs">
-                  <Badge
-                    size="lg"
-                    radius="sm"
-                    color={idx === 0 ? "yellow.7" : idx === 1 ? "gray.7" : "orange.7"}
-                    variant="filled"
-                    leftSection={<IconTrophy size={14} />}
-                    style={{ color: idx === 0 ? "#1e3a5f" : "#fff" }}
-                  >
-                    {idx === 0 ? "1º Lugar" : idx === 1 ? "2º Lugar" : "3º Lugar"}
-                  </Badge>
+                {isFirst && (
+                  <div className="absolute top-0 left-0 right-0 h-1 bg-[#c9a227]" />
+                )}
 
-                  <Badge
-                    size="xs"
-                    variant="outline"
-                    color={voiceColors[user.voicePart.toLowerCase()] || "gray"}
-                    style={{ textTransform: "capitalize" }}
-                  >
-                    {user.voicePart}
-                  </Badge>
-                </Group>
+                <div>
+                  <div className="flex items-center justify-between mb-3">
+                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-extrabold bg-white border border-slate-200 shadow-2xs text-slate-900">
+                      <span>{medalEmoji}</span>
+                      <span>{rankLabel}</span>
+                    </span>
 
-                <Text fw={800} size="lg" c="canarinhosBlue.7" mt="xs">
-                  {user.name}
-                </Text>
+                    <span className="text-[11px] font-bold px-2 py-0.5 rounded capitalize bg-slate-100 text-slate-700">
+                      {user.voicePart}
+                    </span>
+                  </div>
 
-                <Group mt="md" justify="space-between" align="flex-end">
+                  <h4 className="text-base font-bold text-slate-900 leading-tight truncate">
+                    {user.name}
+                  </h4>
+                </div>
+
+                <div className="grid grid-cols-2 gap-2 mt-4 pt-3 border-t border-slate-100">
                   <div>
-                    <Text size="xs" c="dimmed">
-                      Ensaios nesta semana
-                    </Text>
-                    <Group gap={4}>
-                      <IconFlame size={16} color="#e03131" />
-                      <Text fw={900} size="xl" c="dark.8">
-                        {user.weekSessions}x
-                      </Text>
-                    </Group>
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
+                      Esta Semana
+                    </span>
+                    <span className="text-lg font-black text-slate-900">
+                      {user.weekSessions}x
+                    </span>
                   </div>
 
-                  <div style={{ textAlign: "right" }}>
-                    <Text size="xs" c="dimmed">
-                      Tempo praticado
-                    </Text>
-                    <Text fw={700} size="sm" c="canarinhosGold.7">
-                      ~{user.totalMinutes} min
-                    </Text>
+                  <div className="text-right">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
+                      Tempo Total
+                    </span>
+                    <span className="text-lg font-black text-[#c9a227]">
+                      {user.totalMinutes} min
+                    </span>
                   </div>
-                </Group>
-              </Paper>
+                </div>
+              </div>
             );
           })}
-        </SimpleGrid>
+        </div>
       )}
 
-      {/* Tabela Completa de Classificação dos Cantores */}
-      <Paper withBorder p="md" radius="md" bg="white" shadow="xs">
-        <Group justify="space-between" mb="md">
-          <Group gap="xs">
-            <ThemeIcon color="canarinhosBlue" variant="light" size="md">
-              <IconTrophy size={18} />
-            </ThemeIcon>
-            <div>
-              <Text fw={700} size="md" c="dark.8">
-                Quadro de Dedicação Vocal
-              </Text>
-              <Text size="xs" c="dimmed">
-                Quanto mais você ouve e repete os áudios do seu naipe, mais pontos você ganha!
-              </Text>
-            </div>
-          </Group>
-          <Badge color="yellow.7" variant="light">
-            {ranking.length} cantores ativos
-          </Badge>
-        </Group>
+      {/* Tabela do Restante do Coro */}
+      {rest.length > 0 && (
+        <div className="rounded-2xl border border-slate-200/90 overflow-hidden bg-white">
+          <div className="px-4 py-3 bg-slate-50/80 border-b border-slate-200/80 text-xs font-bold text-slate-500 uppercase tracking-wider">
+            Demais Cantores Participantes
+          </div>
 
-        <Table verticalSpacing="sm" striped highlightOnHover>
-          <Table.Thead>
-            <Table.Tr>
-              <Table.Th style={{ width: 60 }}>Pos.</Table.Th>
-              <Table.Th>Cantor(a)</Table.Th>
-              <Table.Th>Naipe</Table.Th>
-              <Table.Th style={{ textAlign: "center" }}>Ensaios Semana</Table.Th>
-              <Table.Th style={{ textAlign: "center" }}>Total Geral</Table.Th>
-              <Table.Th style={{ textAlign: "right" }}>Tempo Estudo</Table.Th>
-            </Table.Tr>
-          </Table.Thead>
-          <Table.Tbody>
-            {ranking.map((u) => (
-              <Table.Tr key={u.id}>
-                <Table.Td>
-                  <Text fw={700} size="sm" c={u.rank <= 3 ? "yellow.8" : "dimmed"}>
-                    {u.rank === 1
-                      ? "🥇 1º"
-                      : u.rank === 2
-                        ? "🥈 2º"
-                        : u.rank === 3
-                          ? "🥉 3º"
-                          : `${u.rank}º`}
-                  </Text>
-                </Table.Td>
-                <Table.Td>
-                  <Group gap="xs">
-                    <ThemeIcon size={26} radius="xl" color="canarinhosBlue" variant="subtle">
-                      <IconUser size={14} />
-                    </ThemeIcon>
-                    <Text fw={600} size="sm" c="dark.8">
-                      {u.name}
-                    </Text>
-                  </Group>
-                </Table.Td>
-                <Table.Td>
-                  <Badge
-                    size="xs"
-                    variant="light"
-                    color={voiceColors[u.voicePart.toLowerCase()] || "gray"}
-                    style={{ textTransform: "capitalize" }}
-                  >
-                    {u.voicePart}
-                  </Badge>
-                </Table.Td>
-                <Table.Td style={{ textAlign: "center" }}>
-                  <Badge color={u.weekSessions > 0 ? "orange" : "gray"} variant="filled" size="sm">
-                    {u.weekSessions} ensaios
-                  </Badge>
-                </Table.Td>
-                <Table.Td style={{ textAlign: "center" }}>
-                  <Text size="sm" fw={600} c="dark.7">
-                    {u.totalSessions}
-                  </Text>
-                </Table.Td>
-                <Table.Td style={{ textAlign: "right" }}>
-                  <Text size="xs" fw={700} c="canarinhosBlue.7">
-                    {u.totalMinutes} min
-                  </Text>
-                </Table.Td>
-              </Table.Tr>
+          <div className="divide-y divide-slate-100">
+            {rest.map((user) => (
+              <div
+                key={user.id}
+                className="flex items-center justify-between px-4 py-3 hover:bg-slate-50/50 transition-colors"
+              >
+                <div className="flex items-center gap-3">
+                  <span className="w-6 text-center text-xs font-bold text-slate-400">
+                    #{user.rank}
+                  </span>
+                  <div>
+                    <p className="text-xs font-bold text-slate-900 leading-tight">
+                      {user.name}
+                    </p>
+                    <span className="text-[10px] font-semibold text-slate-400 capitalize">
+                      Naipe: {user.voicePart}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-4 text-xs">
+                  <span className="text-slate-600 font-semibold">
+                    {user.weekSessions} sessões/sem
+                  </span>
+                  <span className="font-bold text-slate-900">
+                    {user.totalMinutes} min
+                  </span>
+                </div>
+              </div>
             ))}
-          </Table.Tbody>
-        </Table>
-      </Paper>
-    </Stack>
+          </div>
+        </div>
+      )}
+    </div>
   );
 }
