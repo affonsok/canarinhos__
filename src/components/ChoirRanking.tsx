@@ -76,16 +76,12 @@ export function ChoirRanking({ ranking }: { ranking: RankingUser[] }) {
             return (
               <div
                 key={user.id}
-                className={`p-4 rounded-2xl border transition-all relative overflow-hidden flex flex-col justify-between ${
+                className={`p-4 rounded-2xl border transition-all flex flex-col justify-between ${
                   isFirst
                     ? "bg-amber-50/40 border-[#c9a227] shadow-xs"
                     : "bg-white border-slate-200/90 shadow-2xs"
                 }`}
               >
-                {isFirst && (
-                  <div className="absolute top-0 left-0 right-0 h-1 bg-[#c9a227]" />
-                )}
-
                 <div>
                   <div className="flex items-center justify-between mb-3">
                     <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-extrabold bg-white border border-slate-200 shadow-2xs text-slate-900">

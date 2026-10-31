@@ -69,15 +69,16 @@ export function EnsaiosDashboard({
         <Tabs
           value={activeTab}
           onChange={setActiveTab}
+          variant="pills"
           color="canarinhosBlue"
-          radius="md"
+          radius="xl"
         >
           <div className="bg-white p-1.5 rounded-2xl border border-slate-200/90 shadow-2xs mb-5 overflow-x-auto">
-            <Tabs.List className="border-none flex-nowrap min-w-max">
+            <Tabs.List className="border-none flex-nowrap min-w-max gap-1">
               <Tabs.Tab
                 value="repertorio"
                 leftSection={<IconMusic size={15} />}
-                className="font-bold text-xs sm:text-sm py-2 px-3.5 rounded-xl transition-all"
+                className="font-bold text-xs sm:text-sm py-2 px-3.5 rounded-xl transition-all data-[active=true]:bg-[#0c1e38] data-[active=true]:text-white data-[active=true]:shadow-xs text-slate-700 hover:bg-slate-100"
               >
                 Repertório Geral ({materials.length > 0 ? "25 Obras" : "0"})
               </Tabs.Tab>
@@ -85,7 +86,7 @@ export function EnsaiosDashboard({
               <Tabs.Tab
                 value="eventos"
                 leftSection={<IconCalendarEvent size={15} />}
-                className="font-bold text-xs sm:text-sm py-2 px-3.5 rounded-xl transition-all"
+                className="font-bold text-xs sm:text-sm py-2 px-3.5 rounded-xl transition-all data-[active=true]:bg-[#0c1e38] data-[active=true]:text-white data-[active=true]:shadow-xs text-slate-700 hover:bg-slate-100"
               >
                 Agenda de Compromissos ({events.length})
               </Tabs.Tab>
@@ -93,7 +94,7 @@ export function EnsaiosDashboard({
               <Tabs.Tab
                 value="ranking"
                 leftSection={<IconTrophy size={15} />}
-                className="font-bold text-xs sm:text-sm py-2 px-3.5 rounded-xl transition-all"
+                className="font-bold text-xs sm:text-sm py-2 px-3.5 rounded-xl transition-all data-[active=true]:bg-[#0c1e38] data-[active=true]:text-white data-[active=true]:shadow-xs text-slate-700 hover:bg-slate-100"
               >
                 Ranking de Dedicação ({ranking.length})
               </Tabs.Tab>
@@ -101,7 +102,7 @@ export function EnsaiosDashboard({
               <Tabs.Tab
                 value="alunos"
                 leftSection={<IconUsersGroup size={15} />}
-                className="font-bold text-xs sm:text-sm py-2 px-3.5 rounded-xl transition-all"
+                className="font-bold text-xs sm:text-sm py-2 px-3.5 rounded-xl transition-all data-[active=true]:bg-[#0c1e38] data-[active=true]:text-white data-[active=true]:shadow-xs text-slate-700 hover:bg-slate-100"
               >
                 Gestão de Alunos ({students.length})
               </Tabs.Tab>

@@ -171,13 +171,11 @@ export function EventsManager({
               <Card
                 key={evt.id}
                 withBorder
-                shadow="sm"
-                padding="xl"
-                radius="lg"
+                shadow="xs"
+                padding="lg"
+                radius="md"
                 bg="white"
-                style={{
-                  borderLeft: "6px solid #1e3a5f",
-                }}
+                className="rounded-2xl border border-slate-200/90 shadow-2xs"
               >
                 <Stack gap="sm">
                   {/* Topo do Card */}

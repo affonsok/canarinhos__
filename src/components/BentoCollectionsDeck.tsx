@@ -35,7 +35,6 @@ export function BentoCollectionsDeck({
       icon: "🌟",
       borderActive: "border-[#1e3a5f]",
       bgActive: "bg-[#edf4fb]",
-      indicator: "bg-[#1e3a5f]",
     },
     {
       id: "natal",
@@ -45,7 +44,6 @@ export function BentoCollectionsDeck({
       icon: "🎄",
       borderActive: "border-red-600",
       bgActive: "bg-red-50",
-      indicator: "bg-red-600",
     },
     {
       id: "missas",
@@ -55,7 +53,6 @@ export function BentoCollectionsDeck({
       icon: "⛪",
       borderActive: "border-blue-700",
       bgActive: "bg-blue-50",
-      indicator: "bg-blue-700",
     },
     {
       id: "classicos",
@@ -65,7 +62,6 @@ export function BentoCollectionsDeck({
       icon: "🎼",
       borderActive: "border-purple-700",
       bgActive: "bg-purple-50",
-      indicator: "bg-purple-700",
     },
     {
       id: "mpb",
@@ -75,7 +71,6 @@ export function BentoCollectionsDeck({
       icon: "🎵",
       borderActive: "border-teal-700",
       bgActive: "bg-teal-50",
-      indicator: "bg-teal-700",
     },
   ];
 
@@ -94,23 +89,16 @@ export function BentoCollectionsDeck({
               isFirst ? "col-span-2 sm:col-span-1" : ""
             } ${
               isSelected
-                ? `${card.bgActive} ${card.borderActive} shadow-sm ring-1 ring-inset ring-black/5`
+                ? `${card.bgActive} ${card.borderActive} shadow-xs font-bold ring-1 ring-inset ring-black/5`
                 : "bg-white border-slate-200/90 hover:border-slate-300 hover:bg-slate-50/70"
             }`}
           >
-            {/* Indicador de Seleção Ativa no topo da célula */}
-            {isSelected && (
-              <div
-                className={`absolute top-0 left-0 right-0 h-1 ${card.indicator}`}
-              />
-            )}
-
             <div className="flex items-center justify-between gap-1 mb-1.5">
               <span className="text-lg leading-none">{card.icon}</span>
               <span
                 className={`text-[11px] font-bold px-1.5 py-0.5 rounded ${
                   isSelected
-                    ? "bg-white/80 text-slate-900 font-extrabold shadow-2xs"
+                    ? "bg-white text-slate-900 font-extrabold shadow-2xs border border-slate-200/80"
                     : "bg-slate-100 text-slate-600 group-hover:bg-slate-200"
                 }`}
               >
@@ -120,7 +108,7 @@ export function BentoCollectionsDeck({
 
             <span
               className={`text-xs font-bold leading-snug truncate ${
-                isSelected ? "text-slate-950 font-extrabold" : "text-slate-800"
+                isSelected ? "text-slate-950 font-black" : "text-slate-800"
               }`}
             >
               {card.label}

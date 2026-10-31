@@ -272,7 +272,6 @@ export default function LandingPage() {
                 withBorder
                 bg="white"
                 style={{
-                  borderTop: "4px solid #1e3a5f",
                   display: "flex",
                   flexDirection: "column",
                   justifyContent: "space-between",
