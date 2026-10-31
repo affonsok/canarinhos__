@@ -80,16 +80,19 @@ export function BentoCollectionsDeck({
   ];
 
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2.5 mb-4">
-      {cards.map((card) => {
+    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 sm:gap-2.5 mb-3.5">
+      {cards.map((card, idx) => {
         const isSelected = selectedCategory === card.id;
+        const isFirst = idx === 0;
 
         return (
           <button
             key={card.id}
             type="button"
             onClick={() => onSelectCategory(card.id)}
-            className={`flex flex-col text-left p-3 rounded-xl border transition-all relative overflow-hidden group ${
+            className={`flex flex-col text-left p-3 rounded-xl border transition-all relative overflow-hidden group min-h-[72px] active:scale-98 ${
+              isFirst ? "col-span-2 sm:col-span-1" : ""
+            } ${
               isSelected
                 ? `${card.bgActive} ${card.borderActive} shadow-sm ring-1 ring-inset ring-black/5`
                 : "bg-white border-slate-200/90 hover:border-slate-300 hover:bg-slate-50/70"

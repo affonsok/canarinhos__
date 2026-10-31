@@ -204,21 +204,23 @@ export function BentoHeroCockpit({
               </strong>
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="w-full sm:w-auto flex items-center gap-2">
               {userVoiceMaterialInEvent ? (
                 <Button
                   component={Link}
                   href={`/ensaios/material/${userVoiceMaterialInEvent.id}`}
-                  size="sm"
-                  radius="md"
+                  size="md"
+                  radius="xl"
                   color="yellow.6"
-                  leftSection={<IconPlayerPlay size={15} />}
+                  fullWidth
+                  leftSection={<IconPlayerPlay size={16} />}
                   style={{
                     backgroundColor: "#c9a227",
                     color: "#0c1e38",
-                    fontWeight: 800,
+                    fontWeight: 900,
+                    height: "46px",
                   }}
-                  className="shadow-sm hover:brightness-110 transition-all"
+                  className="w-full sm:w-auto shadow-sm hover:brightness-110 transition-all text-xs sm:text-sm"
                 >
                   Treinar Minha Voz Agora
                 </Button>
@@ -226,14 +228,17 @@ export function BentoHeroCockpit({
                 <Button
                   component={Link}
                   href="#repertorio"
-                  size="sm"
-                  radius="md"
+                  size="md"
+                  radius="xl"
                   color="yellow.6"
+                  fullWidth
                   style={{
                     backgroundColor: "#c9a227",
                     color: "#0c1e38",
-                    fontWeight: 800,
+                    fontWeight: 900,
+                    height: "46px",
                   }}
+                  className="w-full sm:w-auto shadow-sm text-xs sm:text-sm"
                 >
                   Abrir Acervo de Obras
                 </Button>
@@ -326,14 +331,15 @@ export function BentoHeroCockpit({
           {/* Atalho de filtro da própria voz */}
           {user.voicePart && onQuickFilterVoice && (
             <button
+              type="button"
               onClick={() => onQuickFilterVoice(user.voicePart!.toLowerCase())}
-              className="w-full py-2 px-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold flex items-center justify-between transition-colors border border-slate-200"
+              className="w-full py-2.5 px-3 rounded-xl bg-slate-100 hover:bg-slate-200 active:scale-98 text-slate-800 text-xs font-bold flex items-center justify-between transition-colors border border-slate-200 min-h-[44px]"
             >
               <span className="flex items-center gap-1.5">
-                <IconMicrophone size={14} className="text-[#1e3a5f]" />
+                <IconMicrophone size={15} className="text-[#1e3a5f]" />
                 Meu Naipe: {user.voicePart} (Filtrar Repertório)
               </span>
-              <IconArrowRight size={13} className="text-slate-400" />
+              <IconArrowRight size={14} className="text-slate-400" />
             </button>
           )}
         </div>

@@ -117,10 +117,10 @@ export function SongCard({
 
             <Link
               href={`/ensaios/material/${work.scores[0].id}`}
-              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-bold bg-[#c9a227] hover:bg-[#b58f1f] text-slate-950 shrink-0 transition-colors shadow-2xs"
+              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold bg-[#c9a227] hover:bg-[#b58f1f] active:scale-95 text-slate-950 shrink-0 transition-colors shadow-2xs min-h-[38px]"
             >
               <span>Ver PDF</span>
-              <IconExternalLink size={12} />
+              <IconExternalLink size={13} />
             </Link>
           </div>
         )}
@@ -164,7 +164,7 @@ export function SongCard({
                   <Link
                     key={audio.id}
                     href={`/ensaios/material/${audio.id}`}
-                    className={`flex items-center justify-between p-2 rounded-xl text-xs font-medium border transition-all ${
+                    className={`flex items-center justify-between p-2.5 rounded-xl text-xs font-semibold border transition-all min-h-[44px] active:scale-98 ${
                       isSelectedByFilter
                         ? "bg-[#1e3a5f] text-white border-[#1e3a5f] shadow-xs font-bold"
                         : isUserVoice

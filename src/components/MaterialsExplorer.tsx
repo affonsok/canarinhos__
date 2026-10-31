@@ -1,16 +1,10 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import {
   TextInput,
   SegmentedControl,
   Select,
-  Group,
-  Text,
-  Badge,
-  Stack,
-  Box,
-  Button,
   ActionIcon,
 } from "@mantine/core";
 import {
@@ -22,6 +16,7 @@ import {
   IconLayoutGrid,
   IconListDetails,
   IconFolder,
+  IconCheck,
 } from "@tabler/icons-react";
 import { MaterialCard } from "./MaterialCard";
 import { SongCard } from "./SongCard";
@@ -44,13 +39,31 @@ export function MaterialsExplorer({
   currentUserVoice,
   externalVoiceFilter,
 }: MaterialsExplorerProps) {
+  // REGRA DE OURO: Se o coralista tem um naipe cadastrado, a visualização DELE é a PADRÃO (DEFAULT)!
+  const hasVoice = Boolean(currentUserVoice);
+  const normalizedUserVoice = currentUserVoice ? currentUserVoice.toLowerCase() : "";
+
+  const [onlyMyVoice, setOnlyMyVoice] = useState<boolean>(hasVoice);
+  const [selectedVoice, setSelectedVoice] = useState<string>(
+    externalVoiceFilter || (hasVoice ? normalizedUserVoice : "all")
+  );
+
   const [search, setSearch] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [selectedMissa, setSelectedMissa] = useState<string>("all");
-  const [selectedVoice, setSelectedVoice] = useState<string>(
-    externalVoiceFilter || "all"
-  );
   const [viewMode, setViewMode] = useState<"cards" | "accordion" | "flat">("cards");
+
+  // Reage a cliques externos de filtro por voz (ex: vindo do Bento Hero Cockpit)
+  useEffect(() => {
+    if (externalVoiceFilter) {
+      setSelectedVoice(externalVoiceFilter);
+      if (externalVoiceFilter === normalizedUserVoice) {
+        setOnlyMyVoice(true);
+      } else {
+        setOnlyMyVoice(false);
+      }
+    }
+  }, [externalVoiceFilter, normalizedUserVoice]);
 
   // Agrupa os 97 materiais nas 25 obras musicais estruturadas
   const allWorks = useMemo(() => {
@@ -97,7 +110,7 @@ export function MaterialsExplorer({
         if (work.subCategory !== selectedMissa) return false;
       }
 
-      // 3. Filtro de Naipe
+      // 3. Filtro de Naipe Vocal (Padronizado como Meu Naipe por Default)
       if (selectedVoice !== "all") {
         const voiceQuery = selectedVoice.toLowerCase();
         const hasVoiceInAudios = work.audios.some((a) => {
@@ -108,7 +121,7 @@ export function MaterialsExplorer({
         if (!hasVoiceInAudios) return false;
       }
 
-      // 4. Busca Textual (Nome da música, compositor, subtítulo ou materiais)
+      // 4. Busca Textual
       if (search.trim()) {
         const query = search.toLowerCase();
         const matchesName = work.name.toLowerCase().includes(query);
@@ -132,12 +145,22 @@ export function MaterialsExplorer({
     return filteredWorks.flatMap((w) => w.allMaterials);
   }, [filteredWorks]);
 
-  // Limpa todos os filtros
+  // Alterna entre ver apenas o naipe do coralista vs ver todo o repertório
+  const toggleOnlyMyVoice = (enable: boolean) => {
+    setOnlyMyVoice(enable);
+    if (enable && hasVoice) {
+      setSelectedVoice(normalizedUserVoice);
+    } else {
+      setSelectedVoice("all");
+    }
+  };
+
   const handleClearFilters = () => {
     setSearch("");
     setSelectedCategory("all");
     setSelectedMissa("all");
     setSelectedVoice("all");
+    setOnlyMyVoice(false);
   };
 
   const isFiltered =
@@ -147,9 +170,63 @@ export function MaterialsExplorer({
     selectedVoice !== "all";
 
   return (
-    <div id="repertorio" className="space-y-4">
+    <div id="repertorio" className="space-y-3.5">
       {/* ============================================================== */}
-      {/* 1. DECK DE COLEÇÕES BENTO (Ponto de Acesso Rápido)             */}
+      {/* 1. MASTER TOGGLE BENTO MOBILE-FIRST: "APENAS MEU NAIPE" (DEFAULT) */}
+      {/* ============================================================== */}
+      {hasVoice && (
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 p-3.5 sm:p-4 rounded-2xl bg-[#0c1e38] text-white border border-[#1e3a5f] shadow-sm">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-[#c9a227] text-slate-950 flex items-center justify-center font-black text-base shrink-0 shadow-2xs">
+              🎯
+            </div>
+            <div>
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="text-sm font-extrabold text-white">
+                  {onlyMyVoice
+                    ? `Modo Padrão Ativo: Apenas ${currentUserVoice?.toUpperCase()}`
+                    : "Exibindo Todo o Repertório do Coro"}
+                </span>
+                {onlyMyVoice && (
+                  <span className="text-[10px] uppercase tracking-wider font-extrabold bg-[#c9a227]/20 text-[#fde047] border border-[#c9a227]/30 px-2 py-0.5 rounded-full">
+                    Padrão
+                  </span>
+                )}
+              </div>
+              <p className="text-xs text-slate-300 line-clamp-1 mt-0.5">
+                {onlyMyVoice
+                  ? `Mostrando somente as músicas que possuem faixas para o seu naipe.`
+                  : "Todas as 25 obras e todos os naipes estão visíveis."}
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2 shrink-0">
+            {onlyMyVoice ? (
+              <button
+                type="button"
+                onClick={() => toggleOnlyMyVoice(false)}
+                className="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 active:scale-95 text-white text-xs font-bold border border-white/20 transition-all text-center min-h-[44px] flex items-center justify-center gap-1.5"
+              >
+                <span>🌟 Ver Todo o Repertório</span>
+                <span className="text-[11px] text-slate-300">({allWorks.length})</span>
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={() => toggleOnlyMyVoice(true)}
+                className="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-[#c9a227] hover:bg-[#b58f1f] active:scale-95 text-slate-950 text-xs font-black transition-all shadow-sm text-center min-h-[44px] flex items-center justify-center gap-1.5"
+              >
+                <span>🎯 Filtrar Meu Naipe</span>
+                <span className="capitalize font-bold">({currentUserVoice})</span>
+              </button>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* ============================================================== */}
+      {/* 2. DECK DE COLEÇÕES BENTO (Ponto de Acesso Rápido)             */}
       {/* ============================================================== */}
       <BentoCollectionsDeck
         selectedCategory={selectedCategory}
@@ -161,9 +238,9 @@ export function MaterialsExplorer({
       />
 
       {/* ============================================================== */}
-      {/* 2. CONSOLE DE CONTROLE COMPACTO (Busca, Naipe & Modos)         */}
+      {/* 3. CONSOLE DE CONTROLE COMPACTO (Busca, Naipe & Modos)         */}
       {/* ============================================================== */}
-      <div className="p-4 rounded-2xl bg-white border border-slate-200/90 shadow-2xs space-y-3">
+      <div className="p-3.5 sm:p-4 rounded-2xl bg-white border border-slate-200/90 shadow-2xs space-y-3">
         {/* Sub-filtro de Missas (aparece apenas quando a coleção de Missas está ativa) */}
         {selectedCategory === "missas" && (
           <div className="flex flex-wrap items-center gap-1.5 p-2 rounded-xl bg-blue-50/70 border border-blue-200/60 text-xs">
@@ -180,7 +257,7 @@ export function MaterialsExplorer({
                 key={sub.id}
                 type="button"
                 onClick={() => setSelectedMissa(sub.id)}
-                className={`px-2.5 py-1 rounded-lg font-semibold transition-all ${
+                className={`px-2.5 py-1.5 rounded-lg font-semibold transition-all min-h-[36px] ${
                   selectedMissa === sub.id
                     ? "bg-[#1e3a5f] text-white shadow-2xs"
                     : "bg-white/80 hover:bg-white text-slate-700 border border-slate-200/80"
@@ -192,70 +269,82 @@ export function MaterialsExplorer({
           </div>
         )}
 
-        {/* Linha Principal de Ferramentas */}
+        {/* Linha Principal de Ferramentas: Busca + Seletor de Naipe + Alternador de Visualização */}
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5">
           {/* Campo de Busca Rápida */}
-          <div className="relative flex-1 min-w-[240px]">
+          <div className="relative flex-1 min-w-[200px]">
             <TextInput
-              placeholder="Buscar por obra, compositor (Mozart, Rutter...), trecho..."
+              placeholder="Buscar por obra, compositor (Mozart, Rutter...)..."
               value={search}
               onChange={(e) => setSearch(e.currentTarget.value)}
-              leftSection={<IconSearch size={15} className="text-slate-400" />}
+              leftSection={<IconSearch size={16} className="text-slate-400" />}
               rightSection={
                 search ? (
                   <ActionIcon
-                    size="xs"
+                    size="sm"
                     variant="subtle"
                     color="gray"
                     onClick={() => setSearch("")}
+                    aria-label="Limpar busca"
                   >
-                    <IconX size={12} />
+                    <IconX size={14} />
                   </ActionIcon>
                 ) : null
               }
               radius="md"
-              size="sm"
+              size="md"
               styles={{
                 input: {
                   backgroundColor: "#f8fafc",
                   borderColor: "#e2e8f0",
-                  fontSize: "13px",
+                  fontSize: "14px",
+                  height: "44px",
                 },
               }}
             />
           </div>
 
-          {/* Filtro Rápido por Naipe */}
           <div className="flex items-center gap-2">
-            <Select
-              placeholder="Filtrar Naipe"
-              value={selectedVoice}
-              onChange={(val) => setSelectedVoice(val || "all")}
-              radius="md"
-              size="sm"
-              leftSection={<IconFilter size={14} className="text-slate-400" />}
-              data={[
-                { label: "Todos os Naipes", value: "all" },
-                { label: "🌸 Soprano", value: "soprano" },
-                { label: "🍇 Contralto", value: "contralto" },
-                { label: "🔷 Tenor", value: "tenor" },
-                { label: "🟦 Baixo", value: "baixo" },
-                { label: "🎵 Barítono", value: "baritono" },
-              ]}
-              style={{ width: 165 }}
-              styles={{
-                input: {
-                  backgroundColor: "#f8fafc",
-                  borderColor: "#e2e8f0",
-                  fontSize: "13px",
-                  fontWeight: 600,
-                },
-              }}
-            />
+            {/* Filtro Rápido por Naipe */}
+            <div className="flex-1 sm:flex-none sm:w-[170px]">
+              <Select
+                placeholder="Naipe Vocal"
+                value={selectedVoice}
+                onChange={(val) => {
+                  const newVoice = val || "all";
+                  setSelectedVoice(newVoice);
+                  if (hasVoice && newVoice === normalizedUserVoice) {
+                    setOnlyMyVoice(true);
+                  } else {
+                    setOnlyMyVoice(false);
+                  }
+                }}
+                radius="md"
+                size="md"
+                leftSection={<IconFilter size={15} className="text-slate-400" />}
+                data={[
+                  { label: "Todos os Naipes", value: "all" },
+                  { label: "🌸 Soprano", value: "soprano" },
+                  { label: "🍇 Contralto", value: "contralto" },
+                  { label: "🔷 Tenor", value: "tenor" },
+                  { label: "🟦 Baixo", value: "baixo" },
+                  { label: "🎵 Barítono", value: "baritono" },
+                ]}
+                styles={{
+                  input: {
+                    backgroundColor: "#f8fafc",
+                    borderColor: "#e2e8f0",
+                    fontSize: "13px",
+                    fontWeight: 700,
+                    height: "44px",
+                  },
+                }}
+              />
+            </div>
 
             {/* Alternador do Modo de Exibição */}
             <SegmentedControl
-              size="xs"
+              size="sm"
               radius="md"
               value={viewMode}
               onChange={(val) => setViewMode(val as any)}
@@ -263,8 +352,8 @@ export function MaterialsExplorer({
                 {
                   value: "cards",
                   label: (
-                    <div className="flex items-center gap-1 font-semibold">
-                      <IconLayoutGrid size={13} />
+                    <div className="flex items-center justify-center gap-1 font-bold py-1">
+                      <IconLayoutGrid size={15} />
                       <span className="hidden md:inline">Obras</span>
                     </div>
                   ),
@@ -272,8 +361,8 @@ export function MaterialsExplorer({
                 {
                   value: "accordion",
                   label: (
-                    <div className="flex items-center gap-1 font-semibold">
-                      <IconFolder size={13} />
+                    <div className="flex items-center justify-center gap-1 font-bold py-1">
+                      <IconFolder size={15} />
                       <span className="hidden md:inline">Pastas</span>
                     </div>
                   ),
@@ -281,8 +370,8 @@ export function MaterialsExplorer({
                 {
                   value: "flat",
                   label: (
-                    <div className="flex items-center gap-1 font-semibold">
-                      <IconListDetails size={13} />
+                    <div className="flex items-center justify-center gap-1 font-bold py-1">
+                      <IconListDetails size={15} />
                       <span className="hidden md:inline">Lista</span>
                     </div>
                   ),
@@ -292,6 +381,9 @@ export function MaterialsExplorer({
                 root: {
                   backgroundColor: "#f1f5f9",
                   border: "1px solid #e2e8f0",
+                  height: "44px",
+                  display: "flex",
+                  alignItems: "center",
                 },
               }}
             />
@@ -299,49 +391,56 @@ export function MaterialsExplorer({
         </div>
 
         {/* Linha de Feedback e Limpeza de Filtros */}
-        <div className="flex items-center justify-between text-xs pt-2 border-t border-slate-100">
+        <div className="flex flex-wrap items-center justify-between text-xs pt-1.5 border-t border-slate-100 gap-1.5">
           <span className="text-slate-500 font-medium">
             Exibindo <strong className="text-slate-900">{filteredWorks.length}</strong> de{" "}
-            {allWorks.length} obras musicais ({flatMaterials.length} materiais disponíveis)
+            {allWorks.length} obras musicais{" "}
+            {onlyMyVoice && (
+              <span className="text-blue-900 font-bold">
+                (filtrado para {currentUserVoice})
+              </span>
+            )}
           </span>
 
           {isFiltered && (
             <button
               type="button"
               onClick={handleClearFilters}
-              className="text-xs font-semibold text-slate-500 hover:text-slate-900 underline flex items-center gap-1"
+              className="text-xs font-bold text-slate-500 hover:text-slate-900 underline flex items-center gap-1 py-1"
             >
               <IconX size={12} />
-              Limpar filtros
+              Limpar todos os filtros
             </button>
           )}
         </div>
       </div>
 
       {/* ============================================================== */}
-      {/* 3. GRADE BENTO PRINCIPAL DE OBRAS MUSICAIS                     */}
+      {/* 4. GRADE BENTO PRINCIPAL DE OBRAS MUSICAIS                     */}
       {/* ============================================================== */}
       {filteredWorks.length === 0 ? (
-        <div className="p-10 rounded-2xl bg-white border border-slate-200/90 text-center shadow-2xs">
+        <div className="p-8 sm:p-12 rounded-2xl bg-white border border-slate-200/90 text-center shadow-2xs">
           <div className="w-12 h-12 rounded-xl bg-slate-100 text-slate-400 mx-auto flex items-center justify-center mb-3">
             <IconMusic size={24} />
           </div>
           <h3 className="text-sm font-bold text-slate-900">
             Nenhuma obra encontrada para estes filtros
           </h3>
-          <p className="text-xs text-slate-500 max-w-sm mx-auto mt-1 mb-4">
-            Tente buscar por outro termo ou limpar os filtros de coleção e naipe.
+          <p className="text-xs text-slate-500 max-w-sm mx-auto mt-1 mb-4 leading-relaxed">
+            {onlyMyVoice
+              ? `Não há áudios marcados como ${currentUserVoice} para a busca atual. Toque no botão abaixo para ver todo o repertório do coro.`
+              : "Tente buscar por outro termo ou limpar os filtros de coleção e naipe."}
           </p>
           <button
             type="button"
             onClick={handleClearFilters}
-            className="px-3.5 py-1.5 rounded-xl bg-[#1e3a5f] text-white text-xs font-bold hover:bg-[#162c4a] transition-colors"
+            className="px-4 py-2.5 rounded-xl bg-[#0c1e38] text-white text-xs font-bold hover:bg-[#162c4a] transition-colors min-h-[44px]"
           >
-            Ver Todo o Repertório
+            Ver Todo o Repertório do Coro
           </button>
         </div>
       ) : viewMode === "cards" ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-3.5">
           {filteredWorks.map((work) => (
             <SongCard
               key={work.id}
