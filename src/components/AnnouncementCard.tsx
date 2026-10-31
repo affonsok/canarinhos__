@@ -1,31 +1,62 @@
+import { Card, Text, Group, Badge, ThemeIcon, Stack } from "@mantine/core";
+import { IconCalendar, IconMapPin, IconBell } from "@tabler/icons-react";
 import type { Announcement } from "./types";
 
-export function AnnouncementCard({ announcement }: { announcement: Announcement }) {
+export function AnnouncementCard({
+  announcement,
+}: {
+  announcement: Announcement;
+}) {
   const hasEvent = Boolean(announcement.eventDate);
 
   return (
-    <article className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
-      <header className="flex items-start justify-between gap-3">
-        <h3 className="text-base font-semibold text-canarinhos-blue">
-          {announcement.title}
-        </h3>
-        {hasEvent && (
-          <time className="shrink-0 rounded bg-canarinhos-gold/10 px-2 py-0.5 text-xs font-medium text-canarinhos-blue">
-            {new Date(announcement.eventDate!).toLocaleDateString("pt-BR")}
-          </time>
-        )}
-      </header>
+    <Card
+      withBorder
+      shadow="xs"
+      padding="lg"
+      radius="md"
+      style={{
+        backgroundColor: "#ffffff",
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "space-between",
+      }}
+    >
+      <div>
+        <Group justify="space-between" align="flex-start" mb="xs">
+          <ThemeIcon size={34} radius="md" color="canarinhosBlue" variant="light">
+            <IconBell size={18} />
+          </ThemeIcon>
+          {hasEvent && (
+            <Badge
+              color="canarinhosGold"
+              variant="light"
+              size="sm"
+              leftSection={<IconCalendar size={12} />}
+              style={{ color: "#856412" }}
+            >
+              {new Date(announcement.eventDate!).toLocaleDateString("pt-BR")}
+            </Badge>
+          )}
+        </Group>
 
-      <p className="mt-2 text-sm leading-relaxed text-slate-600">
-        {announcement.content}
-      </p>
+        <Text fw={700} size="md" c="canarinhosBlue.7" mb="xs">
+          {announcement.title}
+        </Text>
+
+        <Text size="sm" c="dark.6" lh={1.6}>
+          {announcement.content}
+        </Text>
+      </div>
 
       {announcement.location && (
-        <p className="mt-3 flex items-center gap-1 text-xs text-slate-500">
-          <span aria-hidden>📍</span>
-          {announcement.location}
-        </p>
+        <Group gap={6} mt="md">
+          <IconMapPin size={14} color="#64748b" />
+          <Text size="xs" c="dimmed">
+            {announcement.location}
+          </Text>
+        </Group>
       )}
-    </article>
+    </Card>
   );
 }

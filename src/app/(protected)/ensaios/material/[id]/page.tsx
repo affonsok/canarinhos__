@@ -1,24 +1,30 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { getServerSession } from "next-auth";
+import {
+  Container,
+  Title,
+  Text,
+  Badge,
+  Group,
+  Button,
+  Paper,
+  Box,
+  Stack,
+  Alert,
+} from "@mantine/core";
+import {
+  IconArrowLeft,
+  IconCalendar,
+  IconHeadphones,
+  IconFileText,
+  IconInfoCircle,
+} from "@tabler/icons-react";
 import { AudioPlayer } from "@/components/AudioPlayer";
 import { PdfViewer } from "@/components/PdfViewer";
 import type { Material } from "@/components/types";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-
-async function fetchMaterial(id: string): Promise<Material | null> {
-  const baseUrl = process.env.NEXTAUTH_URL || "http://localhost:3001";
-  try {
-    const res = await fetch(`${baseUrl}/api/materials/${id}`, {
-      cache: "no-store",
-    });
-    if (!res.ok) return null;
-    return (await res.json()) as Material;
-  } catch {
-    return null;
-  }
-}
 
 export default async function MaterialDetailPage({
   params,
@@ -28,28 +34,22 @@ export default async function MaterialDetailPage({
   const session = await getServerSession(authOptions);
   if (!session?.user?.email) redirect("/login");
 
-  let material = await fetchMaterial(params.id);
+  const dbMaterial = await prisma.material.findUnique({
+    where: { id: params.id },
+    include: { group: true },
+  });
 
-  // Fallback caso a chamada interna à API falhe
-  if (!material) {
-    const dbMaterial = await prisma.material.findUnique({
-      where: { id: params.id },
-      include: { group: true },
-    });
+  if (!dbMaterial) notFound();
 
-    if (dbMaterial) {
-      material = {
-        id: dbMaterial.id,
-        title: dbMaterial.title,
-        type: dbMaterial.type as Material["type"],
-        driveId: dbMaterial.driveId,
-        localPath: dbMaterial.localPath,
-        uploadedAt: dbMaterial.uploadedAt.toISOString(),
-      };
-    }
-  }
-
-  if (!material) notFound();
+  const material: Material = {
+    id: dbMaterial.id,
+    title: dbMaterial.title,
+    type: dbMaterial.type as Material["type"],
+    voicePart: dbMaterial.voicePart,
+    driveId: dbMaterial.driveId,
+    localPath: dbMaterial.localPath,
+    uploadedAt: dbMaterial.uploadedAt.toISOString(),
+  };
 
   const rawPath = material.localPath || material.driveId || "";
   const mediaSrc =
@@ -57,43 +57,108 @@ export default async function MaterialDetailPage({
       ? `/${rawPath}`
       : rawPath;
 
+  const isAudio = material.type === "audio";
+
   return (
-    <div className="mx-auto max-w-4xl px-4 py-10">
-      <nav className="mb-6">
-        <Link
-          href="/ensaios"
-          className="inline-flex items-center gap-2 text-sm font-medium text-slate-600 hover:text-canarinhos-blue"
-        >
-          <span>←</span> Voltar para a Área de Ensaios
-        </Link>
-      </nav>
+    <Box py="xl" style={{ backgroundColor: "#f8fafc", minHeight: "100vh" }}>
+      <Container size="md">
+        {/* Navegação de Retorno */}
+        <Box mb="lg">
+          <Button
+            component={Link}
+            href="/ensaios"
+            variant="subtle"
+            color="gray"
+            leftSection={<IconArrowLeft size={16} />}
+            radius="md"
+          >
+            Voltar para a Área de Ensaios
+          </Button>
+        </Box>
 
-      <header className="mb-6">
-        <p className="text-sm font-semibold uppercase tracking-wide text-canarinhos-gold">
-          {material.type === "audio"
-            ? "Áudio para Ensaio"
-            : material.type === "lyric"
-              ? "Letra da Música"
-              : "Partitura"}
-        </p>
-        <h1 className="mt-1 text-3xl font-bold text-canarinhos-blue">
-          {material.title}
-        </h1>
-        <p className="mt-2 text-sm text-slate-500">
-          Adicionado em{" "}
-          {new Date(material.uploadedAt).toLocaleDateString("pt-BR")}
-        </p>
-      </header>
+        {/* Cabeçalho do Material */}
+        <Paper withBorder shadow="xs" p="xl" radius="lg" mb="xl" bg="white">
+          <Stack gap="xs">
+            <Group justify="space-between" align="center">
+              <Group gap="xs">
+                <Badge
+                  color={isAudio ? "blue" : "orange"}
+                  variant="light"
+                  size="md"
+                  leftSection={
+                    isAudio ? (
+                      <IconHeadphones size={14} />
+                    ) : (
+                      <IconFileText size={14} />
+                    )
+                  }
+                >
+                  {isAudio ? "Áudio de Ensaio" : "Partitura"}
+                </Badge>
 
-      {!mediaSrc ? (
-        <div className="rounded-lg border border-dashed border-slate-300 bg-slate-50 p-8 text-center text-sm text-slate-500">
-          Arquivo indisponível no momento.
-        </div>
-      ) : material.type === "audio" ? (
-        <AudioPlayer src={mediaSrc} title={material.title} materialId={material.id} />
-      ) : (
-        <PdfViewer src={mediaSrc} title={material.title} />
-      )}
-    </div>
+                {material.voicePart && (
+                  <Badge color="indigo" variant="outline" size="md">
+                    Naipe: {material.voicePart}
+                  </Badge>
+                )}
+
+                {dbMaterial.group && (
+                  <Badge color="gray" variant="dot" size="md">
+                    {dbMaterial.group.name}
+                  </Badge>
+                )}
+              </Group>
+
+              <Group gap={6} c="dimmed">
+                <IconCalendar size={14} />
+                <Text size="xs">
+                  {new Date(material.uploadedAt).toLocaleDateString("pt-BR")}
+                </Text>
+              </Group>
+            </Group>
+
+            <Title order={1} fw={800} c="canarinhosBlue.7" mt="xs">
+              {material.title}
+            </Title>
+          </Stack>
+        </Paper>
+
+        {/* Player de Áudio ou Visualizador de PDF */}
+        <Box mb="xl">
+          {!mediaSrc ? (
+            <Paper withBorder p="xl" radius="md" ta="center" bg="white">
+              <Text c="dimmed">Arquivo indisponível para este material.</Text>
+            </Paper>
+          ) : isAudio ? (
+            <AudioPlayer
+              src={mediaSrc}
+              title={material.title}
+              materialId={material.id}
+            />
+          ) : (
+            <PdfViewer src={mediaSrc} title={material.title} />
+          )}
+        </Box>
+
+        {/* Dicas de Estudo para o Coro */}
+        {isAudio && (
+          <Alert
+            icon={<IconInfoCircle size={18} />}
+            title="Dicas de Estudo Vocal"
+            color="canarinhosBlue"
+            radius="md"
+            variant="light"
+          >
+            <Text size="sm" lh={1.6}>
+              • <strong>Fones de ouvido</strong>: Utilize fones para perceber melhor as nuances de dinâmica e afinação do seu naipe.
+              <br />
+              • <strong>Ajuste de velocidade</strong>: Para passagens rápidas, reduza para 0.75x até memorizar a letra e respiração.
+              <br />
+              • <strong>Repetição</strong>: Ative o botão de repetição para treinar exaustivamente o trecho sem precisar reiniciar manualmente.
+            </Text>
+          </Alert>
+        )}
+      </Container>
+    </Box>
   );
 }

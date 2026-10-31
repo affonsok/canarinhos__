@@ -4,6 +4,8 @@ export interface Material {
   id: string;
   title: string;
   type: MaterialType;
+  voicePart?: string | null;
+  fileName?: string | null;
   driveId?: string | null;
   localPath?: string | null;
   uploadedAt: string;
