@@ -11,6 +11,7 @@ import {
   Badge,
   Stack,
   Box,
+  Tabs,
 } from "@mantine/core";
 import {
   IconFlame,
@@ -19,9 +20,14 @@ import {
   IconBell,
   IconClock,
   IconSparkles,
+  IconMusic,
+  IconCalendarEvent,
+  IconTrophy,
 } from "@tabler/icons-react";
 import { AnnouncementCard } from "@/components/AnnouncementCard";
 import { MaterialsExplorer } from "@/components/MaterialsExplorer";
+import { ChoirRanking, type RankingUser } from "@/components/ChoirRanking";
+import { EventsManager, type EventItem } from "@/components/EventsManager";
 import type { Announcement, Material, PracticeStats } from "@/components/types";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
@@ -30,7 +36,7 @@ export default async function EnsaiosPage() {
   const session = await getServerSession(authOptions);
   if (!session?.user?.email) redirect("/login");
 
-  // Carrega materiais do banco
+  // 1. Carrega materiais do banco
   const dbMaterials = await prisma.material.findMany({
     orderBy: { uploadedAt: "desc" },
   });
@@ -44,10 +50,10 @@ export default async function EnsaiosPage() {
     uploadedAt: m.uploadedAt.toISOString(),
   }));
 
-  // Carrega avisos
+  // 2. Carrega avisos
   const dbAnnouncements = await prisma.announcement.findMany({
     orderBy: { createdAt: "desc" },
-    take: 6,
+    take: 4,
   });
   const announcements: Announcement[] = dbAnnouncements.map((a) => ({
     id: a.id,
@@ -58,8 +64,8 @@ export default async function EnsaiosPage() {
     createdAt: a.createdAt.toISOString(),
   }));
 
-  // Carrega estatísticas do usuário
-  const user = await prisma.user.findUnique({
+  // 3. Carrega estatísticas do usuário atual
+  const currentUser = await prisma.user.findUnique({
     where: { email: session.user.email },
   });
 
@@ -69,20 +75,20 @@ export default async function EnsaiosPage() {
     lastPracticeAt: null,
   };
 
-  if (user) {
+  if (currentUser) {
     const totalSessions = await prisma.practiceLog.count({
-      where: { userId: user.id },
+      where: { userId: currentUser.id },
     });
     const weekAgo = new Date();
     weekAgo.setDate(weekAgo.getDate() - 7);
     const weekSessions = await prisma.practiceLog.count({
       where: {
-        userId: user.id,
+        userId: currentUser.id,
         timestamp: { gte: weekAgo },
       },
     });
     const lastLog = await prisma.practiceLog.findFirst({
-      where: { userId: user.id },
+      where: { userId: currentUser.id },
       orderBy: { timestamp: "desc" },
     });
     stats = {
@@ -91,6 +97,86 @@ export default async function EnsaiosPage() {
       lastPracticeAt: lastLog?.timestamp?.toISOString() || null,
     };
   }
+
+  // 4. Carrega ranking dos cantores
+  const allUsers = await prisma.user.findMany({
+    include: {
+      practiceLogs: true,
+    },
+  });
+
+  const now = new Date();
+  const oneWeekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+
+  const ranking: RankingUser[] = allUsers
+    .map((u) => {
+      const totalSessions = u.practiceLogs.length;
+      const weekSessions = u.practiceLogs.filter(
+        (log) => new Date(log.timestamp) >= oneWeekAgo
+      ).length;
+      const totalMinutes = Math.round(
+        u.practiceLogs.reduce((acc, log) => acc + (log.duration || 120), 0) / 60
+      );
+      const lastLog = u.practiceLogs.sort(
+        (a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+      )[0];
+
+      return {
+        id: u.id,
+        name: u.name,
+        voicePart: u.voicePart || "Tutti",
+        totalSessions,
+        weekSessions,
+        totalMinutes,
+        lastPracticeAt: lastLog ? lastLog.timestamp.toISOString() : null,
+        rank: 0,
+        medal: "",
+      };
+    })
+    .sort((a, b) => {
+      if (b.weekSessions !== a.weekSessions) {
+        return b.weekSessions - a.weekSessions;
+      }
+      return b.totalSessions - a.totalSessions;
+    })
+    .map((item, index) => ({
+      ...item,
+      rank: index + 1,
+      medal:
+        index === 0
+          ? "🥇 Ouro"
+          : index === 1
+            ? "🥈 Prata"
+            : index === 2
+              ? "🥉 Bronze"
+              : "⭐ Participante",
+    }));
+
+  // 5. Carrega eventos com repertório conectado
+  const dbEvents = await prisma.event.findMany({
+    include: {
+      materials: {
+        select: {
+          id: true,
+          title: true,
+          type: true,
+          voicePart: true,
+        },
+      },
+    },
+    orderBy: {
+      eventDate: "asc",
+    },
+  });
+
+  const events: EventItem[] = dbEvents.map((evt) => ({
+    id: evt.id,
+    title: evt.title,
+    description: evt.description,
+    eventDate: evt.eventDate.toISOString(),
+    location: evt.location,
+    materials: evt.materials,
+  }));
 
   return (
     <Box py="xl" style={{ backgroundColor: "#f8fafc", minHeight: "100vh" }}>
@@ -106,25 +192,25 @@ export default async function EnsaiosPage() {
                 leftSection={<IconSparkles size={14} />}
                 mb={6}
               >
-                Painel do Cantor
+                Canarinhos de Campo Largo • Portal do Aluno
               </Badge>
-              <Title order={1} fw={800} c="canarinhosBlue.7">
-                Área de Ensaios
+              <Title order={1} fw={900} c="canarinhosBlue.7">
+                Área de Ensaios & Repertório
               </Title>
               <Text size="md" c="dimmed" mt={4}>
                 Olá, <strong>{session.user.name || session.user.email}</strong>.
-                Bons estudos e afinação para os próximos compromissos!
+                Acesse suas partituras, áudios de naipe e compromissos do coro.
               </Text>
             </div>
           </Group>
         </Box>
 
-        {/* Stats Grid (Mantine UI StatsGrid pattern) */}
+        {/* Stats Grid */}
         <SimpleGrid cols={{ base: 1, sm: 3 }} spacing="md" mb="xl">
           <Paper withBorder p="md" radius="md" bg="white" shadow="xs">
             <Group justify="space-between" align="flex-start">
               <Text size="xs" c="dimmed" fw={700} tt="uppercase">
-                Ensaios Nesta Semana
+                Seus Ensaios Nesta Semana
               </Text>
               <ThemeIcon color="orange" variant="light" size="md" radius="md">
                 <IconFlame size={18} />
@@ -135,7 +221,7 @@ export default async function EnsaiosPage() {
                 {stats.weekSessions}
               </Text>
               <Text size="xs" c={stats.weekSessions > 0 ? "teal" : "dimmed"} fw={600}>
-                {stats.weekSessions > 0 ? "sessão(ões) ativa(s)" : "nenhum ensaio ainda"}
+                {stats.weekSessions > 0 ? "sessão(ões) ativa(s)" : "nenhuma sessão ainda"}
               </Text>
             </Group>
           </Paper>
@@ -143,7 +229,7 @@ export default async function EnsaiosPage() {
           <Paper withBorder p="md" radius="md" bg="white" shadow="xs">
             <Group justify="space-between" align="flex-start">
               <Text size="xs" c="dimmed" fw={700} tt="uppercase">
-                Total de Sessões
+                Total Acumulado
               </Text>
               <ThemeIcon color="canarinhosBlue" variant="light" size="md" radius="md">
                 <IconHeadphones size={18} />
@@ -162,76 +248,79 @@ export default async function EnsaiosPage() {
           <Paper withBorder p="md" radius="md" bg="white" shadow="xs">
             <Group justify="space-between" align="flex-start">
               <Text size="xs" c="dimmed" fw={700} tt="uppercase">
-                Última Prática
+                Próximo Compromisso
               </Text>
               <ThemeIcon color="yellow.7" variant="light" size="md" radius="md">
-                <IconClock size={18} />
+                <IconCalendarEvent size={18} />
               </ThemeIcon>
             </Group>
             <Group align="flex-end" gap="xs" mt={10}>
-              <Text fw={700} size="1.1rem" lh={1.3} c="dark.8">
-                {stats.lastPracticeAt
-                  ? new Date(stats.lastPracticeAt).toLocaleDateString("pt-BR", {
-                      day: "2-digit",
-                      month: "short",
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })
-                  : "Nenhum registro"}
+              <Text fw={700} size="0.95rem" lh={1.3} c="canarinhosBlue.7" lineClamp={1}>
+                {events[0] ? events[0].title : "Nenhum no momento"}
               </Text>
             </Group>
           </Paper>
         </SimpleGrid>
 
-        {/* Avisos Recentes */}
-        <Box mb="xl">
-          <Group justify="space-between" mb="md">
-            <Group gap="xs">
-              <ThemeIcon color="canarinhosBlue" variant="subtle" size="sm">
-                <IconBell size={18} />
-              </ThemeIcon>
-              <Title order={3} fw={700} c="dark.8">
-                Avisos & Comunicados
-              </Title>
-            </Group>
-            <Badge color="gray" variant="light">
-              {announcements.length} aviso(s)
-            </Badge>
-          </Group>
+        {/* Abas Principais (Repertório / Compromissos / Ranking) */}
+        <Tabs defaultValue="repertorio" color="canarinhosBlue" radius="md">
+          <Tabs.List mb="xl">
+            <Tabs.Tab
+              value="repertorio"
+              leftSection={<IconMusic size={16} />}
+              style={{ fontWeight: 600, fontSize: "15px" }}
+            >
+              Repertório & Músicas ({materials.length})
+            </Tabs.Tab>
+            <Tabs.Tab
+              value="eventos"
+              leftSection={<IconCalendarEvent size={16} />}
+              style={{ fontWeight: 600, fontSize: "15px" }}
+            >
+              Compromissos & Repertório do Evento ({events.length})
+            </Tabs.Tab>
+            <Tabs.Tab
+              value="ranking"
+              leftSection={<IconTrophy size={16} />}
+              style={{ fontWeight: 600, fontSize: "15px" }}
+            >
+              Ranking de Dedicação ({ranking.length})
+            </Tabs.Tab>
+          </Tabs.List>
 
-          {announcements.length === 0 ? (
-            <Paper withBorder p="lg" radius="md" bg="white" ta="center">
-              <Text size="sm" c="dimmed">
-                Nenhum aviso no momento. Fique atento às orientações da regência!
-              </Text>
-            </Paper>
-          ) : (
-            <SimpleGrid cols={{ base: 1, md: 2 }} spacing="md">
-              {announcements.map((a) => (
-                <AnnouncementCard key={a.id} announcement={a} />
-              ))}
-            </SimpleGrid>
-          )}
-        </Box>
+          {/* Aba 1: Repertório & Músicas */}
+          <Tabs.Panel value="repertorio">
+            <Stack gap="xl">
+              {/* Avisos */}
+              {announcements.length > 0 && (
+                <Box>
+                  <Group justify="space-between" mb="xs">
+                    <Text fw={700} size="sm" c="dimmed" tt="uppercase">
+                      Avisos Importantes da Regência
+                    </Text>
+                  </Group>
+                  <SimpleGrid cols={{ base: 1, md: 2 }} spacing="md">
+                    {announcements.map((a) => (
+                      <AnnouncementCard key={a.id} announcement={a} />
+                    ))}
+                  </SimpleGrid>
+                </Box>
+              )}
 
-        {/* Seção Principal de Materiais de Estudo */}
-        <Box>
-          <Group justify="space-between" mb="md">
-            <div>
-              <Title order={3} fw={700} c="dark.8">
-                Repertório & Materiais de Estudo
-              </Title>
-              <Text size="sm" c="dimmed">
-                Filtre por tipo (áudios ou partituras) e pelo seu naipe de voz
-              </Text>
-            </div>
-            <Badge color="canarinhosBlue" variant="filled" size="lg">
-              {materials.length} arquivos disponíveis
-            </Badge>
-          </Group>
+              <MaterialsExplorer initialMaterials={materials} />
+            </Stack>
+          </Tabs.Panel>
 
-          <MaterialsExplorer initialMaterials={materials} />
-        </Box>
+          {/* Aba 2: Compromissos & Repertório Vinculado */}
+          <Tabs.Panel value="eventos">
+            <EventsManager initialEvents={events} allMaterials={materials} />
+          </Tabs.Panel>
+
+          {/* Aba 3: Ranking de Dedicação Vocal */}
+          <Tabs.Panel value="ranking">
+            <ChoirRanking ranking={ranking} />
+          </Tabs.Panel>
+        </Tabs>
       </Container>
     </Box>
   );

@@ -5,7 +5,7 @@ import { IconFileText, IconExternalLink, IconDownload } from "@tabler/icons-reac
 
 export function PdfViewer({ src, title }: { src: string; title: string }) {
   return (
-    <Paper withBorder shadow="sm" radius="lg" overflow="hidden" bg="white">
+    <Paper withBorder shadow="sm" radius="lg" style={{ overflow: "hidden" }} bg="white">
       {/* Barra superior de controle do PDF */}
       <Box p="md" style={{ borderBottom: "1px solid #e2e8f0" }}>
         <Group justify="space-between" align="center">

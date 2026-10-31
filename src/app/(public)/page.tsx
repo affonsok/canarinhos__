@@ -12,6 +12,7 @@ import {
   Paper,
   Box,
   Stack,
+  Divider,
 } from "@mantine/core";
 import {
   IconMicrophone,
@@ -21,91 +22,142 @@ import {
   IconArrowRight,
   IconSparkles,
   IconHeartHandshake,
+  IconMusic,
+  IconCheck,
+  IconExternalLink,
+  IconAward,
+  IconBook,
+  IconMapPin,
 } from "@tabler/icons-react";
 
 export default function LandingPage() {
-  const features = [
+  const timeline = [
     {
-      icon: IconMicrophone,
-      title: "Ensaios & Técnica Vocal",
-      description:
-        "Afinação, sustentação, dicção e expressividade coral desenvolvidas com metodologia consagrada.",
-      badge: "Semanal",
+      year: "1989",
+      title: "Fundação pelo Maestro Théo de Petrus",
+      desc: "Fundado em 1989 pelo Maestro Teodolino José de Souza (Maestro Théo de Petrus), iniciando a trajetória de formação coral em Campo Largo.",
     },
     {
-      icon: IconNotes,
-      title: "Repertório Completo & Partituras",
-      description:
-        "Áudios guias separados por naipes (soprano, contralto, tenor, baixo) e partituras digitais sincronizadas.",
-      badge: "Online",
+      year: "1994",
+      title: "Independência e Pueri Cantores",
+      desc: "O Coro tornou-se independente com sua própria associação e filiou-se à Federação Nacional dos Meninos Cantores do Brasil (Pueri Cantores).",
     },
     {
-      icon: IconCalendarEvent,
-      title: "Concertos & Apresentações",
-      description:
-        "Participação em missas solenes, concertos natalinos, festivais de música e eventos cívico-culturais.",
-      badge: "Temporada 2026",
+      year: "2017",
+      title: "Congresso Internacional no Rio de Janeiro",
+      desc: "Presença de destaque no XLI Congresso Internacional dos Pueri Cantores, reunindo coros de diversas partes do mundo.",
     },
     {
-      icon: IconHeartHandshake,
-      title: "Formação Integral & Cidadã",
-      description:
-        "Mais do que música: convivência sadia, responsabilidade, trabalho coletivo e disciplina para a vida.",
-      badge: "Valores",
+      year: "2018",
+      title: "Teatro Positivo & Ópera de Arame",
+      desc: "Participação no Grande Concerto de Natal de Curitiba no Teatro Positivo e no musical Alice e o Natal das Maravilhas na Ópera de Arame.",
+    },
+    {
+      year: "2019",
+      title: "30 Anos de História & Sede do XVI Congresso",
+      desc: "O coro celebrou 30 anos sediando em Campo Largo o XVI Congresso Nacional da Federação dos Meninos Cantores do Brasil.",
+    },
+    {
+      year: "2020",
+      title: "Legado e Expansão",
+      desc: "Com o falecimento do Maestro Théo de Petrus, a instituição se reorganizou e expandiu suas oficinas com aulas de metais, cordas, fanfarra e ballet.",
+    },
+    {
+      year: "2023",
+      title: "Roma & Audiência com o Papa Francisco",
+      desc: "Participação histórica no XLIV International Congress Pueri Cantores em Roma, cantando na Basílica de São Pedro e encontrando o Papa Francisco.",
+    },
+    {
+      year: "2024",
+      title: "XV Congresso Regional Sul em Campo Largo",
+      desc: "Campo Largo sediou o congresso regional acolhendo cerca de 300 congressistas em paróquias hospedeiras.",
+    },
+    {
+      year: "2025 - 2026",
+      title: "Rumo ao Panamá e Novos Horizontes",
+      desc: "Participação no XVIII Congresso em Minas Gerais e convite oficial para o 1º Congresso Latino-Americano no Panamá.",
     },
   ];
 
   return (
     <Box>
-      {/* Hero Section */}
+      {/* Hero Section Oficial com Background e Logo Real */}
       <Box
         style={{
-          background:
-            "linear-gradient(135deg, #0e1e34 0%, #1e3a5f 60%, #162c4a 100%)",
-          color: "#ffffff",
           position: "relative",
-          overflow: "hidden",
+          minHeight: "88vh",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          backgroundImage: `linear-gradient(rgba(14, 30, 52, 0.78), rgba(14, 30, 52, 0.88)), url('/images/canarinhos-performance.jpeg')`,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          color: "#ffffff",
+          textAlign: "center",
         }}
         py={{ base: 60, md: 100 }}
       >
-        <Container size="lg">
-          <Stack align="center" ta="center" gap="lg">
+        <Container size="md" style={{ position: "relative", zIndex: 2 }}>
+          <Stack align="center" gap="md">
+            {/* Logo Oficial dos Canarinhos */}
+            <Box
+              component="img"
+              src="/images/logo-canarinhos-transparent.png"
+              alt="Logo Canarinhos de Campo Largo"
+              style={{
+                width: "130px",
+                height: "130px",
+                objectFit: "contain",
+                filter: "drop-shadow(0 10px 20px rgba(0,0,0,0.5))",
+              }}
+            />
+
             <Badge
               size="lg"
               variant="gradient"
               gradient={{ from: "#c9a227", to: "#f6c332", deg: 45 }}
-              leftSection={<IconSparkles size={14} />}
-              style={{ color: "#1e3a5f", fontWeight: 700 }}
+              style={{ color: "#1e3a5f", fontWeight: 800 }}
             >
-              Tradição Coral & Formação Humana
+              Instituto de Canto e Música São Domingos Sávio
             </Badge>
 
             <Title
               order={1}
               style={{
-                fontSize: "clamp(2rem, 5vw, 3.5rem)",
+                fontSize: "clamp(2.2rem, 5vw, 3.8rem)",
                 fontWeight: 900,
-                lineHeight: 1.15,
                 color: "#ffffff",
-                maxWidth: 800,
+                letterSpacing: "-0.02em",
+                lineHeight: 1.15,
               }}
             >
-              Vozes que encantam gerações há décadas
+              Canarinhos de Campo Largo
             </Title>
+
+            <Text
+              size="md"
+              style={{
+                color: "#c9a227",
+                fontWeight: 700,
+                letterSpacing: "0.15em",
+                textTransform: "uppercase",
+              }}
+            >
+              Instituto Maestro Théo de Petrus
+            </Text>
 
             <Text
               size="lg"
               style={{
                 maxWidth: 680,
-                color: "#cbd5e1",
+                color: "#e2e8f0",
                 lineHeight: 1.6,
               }}
             >
-              Portal oficial dos Canarinhos. Acompanhe nosso cronograma, estude seu
-              repertório com áudios por naipe e acesse partituras onde você estiver.
+              Formando talentos musicais, cidadania e encantando gerações há mais de três décadas através da excelência do canto coral infantil e juvenil.
             </Text>
 
-            <Group gap="md" mt="md">
+            <Group gap="md" mt="lg">
               <Button
                 component={Link}
                 href="/login"
@@ -116,10 +168,10 @@ export default function LandingPage() {
                 style={{
                   color: "#1e3a5f",
                   fontWeight: 800,
-                  boxShadow: "0 10px 25px -5px rgba(201, 162, 39, 0.4)",
+                  boxShadow: "0 8px 24px rgba(201, 162, 39, 0.45)",
                 }}
               >
-                Acessar Área do Aluno
+                Acessar Área de Ensaios
               </Button>
               <Button
                 component="a"
@@ -129,8 +181,8 @@ export default function LandingPage() {
                 variant="outline"
                 color="gray.1"
                 style={{
-                  borderColor: "rgba(255, 255, 255, 0.3)",
-                  backgroundColor: "rgba(255, 255, 255, 0.05)",
+                  borderColor: "rgba(255, 255, 255, 0.4)",
+                  backgroundColor: "rgba(255, 255, 255, 0.08)",
                 }}
               >
                 Conhecer a História
@@ -140,164 +192,160 @@ export default function LandingPage() {
         </Container>
       </Box>
 
-      {/* Highlights Band */}
-      <Container size="lg" mt={-30} style={{ position: "relative", zIndex: 10 }}>
+      {/* Faixa de Destaques e Reconhecimento */}
+      <Container size="lg" mt={-40} style={{ position: "relative", zIndex: 10 }}>
         <Paper
-          shadow="md"
+          shadow="lg"
           radius="lg"
           p="xl"
-          style={{
-            backgroundColor: "#ffffff",
-            border: "1px solid #e2e8f0",
-          }}
+          bg="white"
+          style={{ border: "1px solid #e2e8f0" }}
         >
           <SimpleGrid cols={{ base: 1, sm: 3 }} spacing="lg">
-            <Stack align="center" gap={4}>
-              <Text fw={900} size="2rem" c="canarinhosBlue.7" lh={1}>
-                90+
-              </Text>
-              <Text size="sm" fw={600} c="dark.6">
-                Materiais de Estudo
-              </Text>
-              <Text size="xs" c="dimmed">
-                Áudios de naipe e partituras
-              </Text>
-            </Stack>
+            <Group gap="md" wrap="nowrap">
+              <ThemeIcon size={52} radius="md" color="canarinhosBlue" variant="light">
+                <IconAward size={28} />
+              </ThemeIcon>
+              <div>
+                <Text fw={800} size="xl" c="canarinhosBlue.7">
+                  Desde 1989
+                </Text>
+                <Text size="xs" c="dimmed">
+                  Mais de 35 anos de tradição e formação musical
+                </Text>
+              </div>
+            </Group>
 
-            <Stack align="center" gap={4}>
-              <Text fw={900} size="2rem" c="canarinhosGold.6" lh={1}>
-                4 Naipes
-              </Text>
-              <Text size="sm" fw={600} c="dark.6">
-                Harmonia Vocal
-              </Text>
-              <Text size="xs" c="dimmed">
-                Soprano, Contralto, Tenor e Baixo
-              </Text>
-            </Stack>
+            <Group gap="md" wrap="nowrap">
+              <ThemeIcon size={52} radius="md" color="yellow.7" variant="light">
+                <IconSparkles size={28} />
+              </ThemeIcon>
+              <div>
+                <Text fw={800} size="xl" c="canarinhosGold.6">
+                  Pueri Cantores
+                </Text>
+                <Text size="xs" c="dimmed">
+                  Membros da Federação Nacional e Internacional
+                </Text>
+              </div>
+            </Group>
 
-            <Stack align="center" gap={4}>
-              <Text fw={900} size="2rem" c="canarinhosBlue.7" lh={1}>
-                100%
-              </Text>
-              <Text size="sm" fw={600} c="dark.6">
-                Acesso Digital
-              </Text>
-              <Text size="xs" c="dimmed">
-                Pratique no computador ou celular
-              </Text>
-            </Stack>
+            <Group gap="md" wrap="nowrap">
+              <ThemeIcon size={52} radius="md" color="teal" variant="light">
+                <IconNotes size={28} />
+              </ThemeIcon>
+              <div>
+                <Text fw={800} size="xl" c="teal.7">
+                  Repertório & Ensaios
+                </Text>
+                <Text size="xs" c="dimmed">
+                  Áudios por naipe e partituras sincronizadas
+                </Text>
+              </div>
+            </Group>
           </SimpleGrid>
         </Paper>
       </Container>
 
-      {/* Activities / Features Section */}
-      <Box id="atividades" py={{ base: 60, md: 80 }}>
+      {/* Seção História Oficial */}
+      <Box id="historia" py={{ base: 60, md: 80 }}>
         <Container size="lg">
           <Stack align="center" ta="center" mb={50}>
             <Badge color="canarinhosBlue" variant="light" size="lg">
-              Pilares do Coro
+              Linha do Tempo
             </Badge>
-            <Title order={2} c="canarinhosBlue.7" fw={800}>
-              Nossas Atividades
+            <Title order={2} c="canarinhosBlue.7" fw={900}>
+              Nossa História
             </Title>
-            <Text c="dimmed" maw={600}>
-              Uma jornada completa de desenvolvimento artístico, musical e pessoal
-              com ensaios organizados e material de apoio contínuo.
+            <Text c="dimmed" maw={640}>
+              Uma trajetória de devoção, perseverança e arte que levou a voz das crianças de Campo Largo aos maiores palcos do Brasil e do mundo.
             </Text>
           </Stack>
 
-          <SimpleGrid cols={{ base: 1, sm: 2, lg: 4 }} spacing="lg">
-            {features.map((f) => {
-              const Icon = f.icon;
-              return (
-                <Card
-                  key={f.title}
-                  shadow="sm"
-                  padding="xl"
-                  radius="md"
-                  withBorder
-                  style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    justifyContent: "space-between",
-                    transition: "transform 0.2s ease, box-shadow 0.2s ease",
-                  }}
-                >
-                  <div>
-                    <Group justify="space-between" mb="md">
-                      <ThemeIcon
-                        size={46}
-                        radius="md"
-                        color="canarinhosBlue"
-                        variant="light"
-                      >
-                        <Icon size={24} />
-                      </ThemeIcon>
-                      <Badge variant="outline" size="sm" color="gray.6">
-                        {f.badge}
-                      </Badge>
-                    </Group>
-
-                    <Text fw={700} size="md" c="dark.8" mb="xs">
-                      {f.title}
-                    </Text>
-
-                    <Text size="sm" c="dimmed" lh={1.6}>
-                      {f.description}
-                    </Text>
-                  </div>
-                </Card>
-              );
-            })}
+          <SimpleGrid cols={{ base: 1, md: 3 }} spacing="lg">
+            {timeline.map((item) => (
+              <Card
+                key={item.year}
+                shadow="xs"
+                padding="lg"
+                radius="md"
+                withBorder
+                bg="white"
+                style={{
+                  borderTop: "4px solid #1e3a5f",
+                  display: "flex",
+                  flexDirection: "column",
+                  justifyContent: "space-between",
+                }}
+              >
+                <div>
+                  <Badge size="lg" color="yellow.7" variant="filled" mb="sm" style={{ color: "#1e3a5f" }}>
+                    {item.year}
+                  </Badge>
+                  <Text fw={700} size="md" c="canarinhosBlue.7" mb="xs">
+                    {item.title}
+                  </Text>
+                  <Text size="sm" c="dark.6" lh={1.6}>
+                    {item.desc}
+                  </Text>
+                </div>
+              </Card>
+            ))}
           </SimpleGrid>
-        </Container>
-      </Box>
 
-      {/* History Section */}
-      <Box
-        id="historia"
-        py={{ base: 60, md: 80 }}
-        style={{ backgroundColor: "#f8fafc", borderTop: "1px solid #e2e8f0" }}
-      >
-        <Container size="md">
-          <Paper
-            p={{ base: "lg", md: "2.5rem" }}
-            radius="lg"
-            withBorder
-            shadow="sm"
-            style={{
-              backgroundColor: "#ffffff",
-              borderLeft: "6px solid #1e3a5f",
-            }}
-          >
-            <Badge color="yellow.6" variant="filled" size="sm" mb="sm" style={{ color: "#1e3a5f" }}>
-              Memória & Legado
-            </Badge>
-            <Title order={2} c="canarinhosBlue.7" fw={800} mb="md">
-              Nossa História
-            </Title>
-            <Text size="md" c="slate.8" lh={1.8} mb="md">
-              Fundado com o propósito de unir educação musical rigorosa e formação cidadã,
-              o projeto Canarinhos mantém viva uma das mais ricas tradições da música vocal.
-              Ao longo de sua trajetória, gerações de jovens descobriram o poder transformador
-              do canto coral e a beleza do trabalho em harmonia.
-            </Text>
-            <Text size="md" c="slate.8" lh={1.8} mb="xl">
-              Nossos ensaios equilibram o rigor técnico da polifonia sacra e profana com a
-              sensibilidade da música popular brasileira e internacional, formando cantores
-              conscientes de sua arte e preparados para se apresentar nos mais diversos palcos.
-            </Text>
-
-            <Group>
+          <Paper withBorder p="xl" radius="lg" mt="xl" bg="white">
+            <Group justify="space-between" align="center" wrap="wrap" gap="md">
+              <div style={{ maxWidth: "600px" }}>
+                <Text fw={700} size="lg" c="canarinhosBlue.7">
+                  Manutenção & Expansão Institucional
+                </Text>
+                <Text size="sm" c="dimmed" mt={4} lh={1.6}>
+                  A instituição se mantém com a doação generosa de voluntários, cachês de apresentações e subvenções municipais. O objetivo permanente inclui a sustentabilidade da Orquestra de Cordas e da Banda Marcial.
+                </Text>
+              </div>
               <Button
                 component={Link}
                 href="/login"
-                variant="light"
                 color="canarinhosBlue"
+                radius="md"
                 rightSection={<IconArrowRight size={16} />}
               >
-                Acessar Área Restrita de Ensaios
+                Área do Aluno / Ensaios
+              </Button>
+            </Group>
+          </Paper>
+        </Container>
+      </Box>
+
+      {/* Seção Edital & Bolsistas */}
+      <Box
+        id="edital-bolsistas"
+        py={{ base: 50, md: 70 }}
+        style={{ backgroundColor: "#f1f5f9", borderTop: "1px solid #e2e8f0" }}
+      >
+        <Container size="md">
+          <Paper p={{ base: "lg", md: "2.5rem" }} radius="lg" withBorder bg="white" shadow="sm">
+            <Badge color="yellow.7" variant="light" size="md" mb="xs">
+              Oportunidade & Formação
+            </Badge>
+            <Title order={2} c="canarinhosBlue.7" fw={800} mb="sm">
+              Edital de Apoio & Bolsistas
+            </Title>
+            <Text size="md" c="dark.7" lh={1.7} mb="md">
+              O Instituto de Canto e Música São Domingos Sávio promove editais periódicos para novos talentos, oferecendo gratuidade em aulas de canto coral, percepção musical, instrumentos e suporte para apresentações cívicas e religiosas.
+            </Text>
+            <Group>
+              <Button
+                component="a"
+                href="https://www.canarinhosdecampolargo.com.br/transparencia-fomento-funarte"
+                target="_blank"
+                rel="noreferrer"
+                variant="outline"
+                color="canarinhosBlue"
+                radius="md"
+                leftSection={<IconExternalLink size={16} />}
+              >
+                Transparência & Fomento FUNARTE
               </Button>
             </Group>
           </Paper>

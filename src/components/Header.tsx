@@ -24,49 +24,50 @@ export async function Header() {
       component="header"
       style={{
         backgroundColor: "#1e3a5f",
-        borderBottom: "1px solid rgba(255, 255, 255, 0.1)",
+        borderBottom: "1px solid rgba(255, 255, 255, 0.12)",
         color: "#fff",
+        position: "sticky",
+        top: 0,
+        zIndex: 100,
+        backdropFilter: "blur(8px)",
       }}
-      py="sm"
+      py="xs"
     >
       <Container size="lg">
         <Group justify="space-between" align="center">
-          {/* Logo */}
+          {/* Logo Oficial Canarinhos */}
           <Link href="/" style={{ textDecoration: "none", color: "inherit" }}>
             <Group gap="xs">
               <Box
+                component="img"
+                src="/images/logo-canarinhos-transparent.png"
+                alt="Logo Canarinhos"
                 style={{
-                  backgroundColor: "#c9a227",
-                  color: "#1e3a5f",
-                  borderRadius: "8px",
-                  padding: "6px",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
+                  width: "40px",
+                  height: "40px",
+                  objectFit: "contain",
                 }}
-              >
-                <IconMusic size={22} stroke={2.5} />
-              </Box>
+              />
               <div>
                 <Text
                   fw={800}
-                  size="lg"
+                  size="md"
                   style={{
-                    letterSpacing: "0.08em",
+                    letterSpacing: "0.02em",
                     color: "#fff",
                     lineHeight: 1.1,
                   }}
                 >
-                  CANARINHOS
+                  Canarinhos de Campo Largo
                 </Text>
-                <Text size="xs" c="dimmed" style={{ color: "#c9a227" }}>
-                  Música & Formação
+                <Text size="xs" style={{ color: "#c9a227", fontWeight: 600 }}>
+                  Instituto São Domingos Sávio
                 </Text>
               </div>
             </Group>
           </Link>
 
-          {/* Links e Ações */}
+          {/* Links e Botão Ensaios */}
           <Group gap="md">
             <Link
               href="/#historia"
@@ -80,7 +81,7 @@ export async function Header() {
               História
             </Link>
             <Link
-              href="/#atividades"
+              href="/#edital-bolsistas"
               style={{
                 textDecoration: "none",
                 color: "#e2e8f0",
@@ -88,7 +89,7 @@ export async function Header() {
                 fontWeight: 500,
               }}
             >
-              Atividades
+              Edital
             </Link>
 
             {session?.user ? (
@@ -99,6 +100,7 @@ export async function Header() {
                   size="lg"
                   radius="sm"
                   leftSection={<IconUser size={14} />}
+                  style={{ color: "#c9a227" }}
                 >
                   {session.user.name || "Aluno"}
                 </Badge>
@@ -107,10 +109,10 @@ export async function Header() {
                   href="/ensaios"
                   variant="filled"
                   color="yellow.6"
-                  size="xs"
+                  size="sm"
                   radius="md"
-                  leftSection={<IconHeadphones size={15} />}
-                  style={{ color: "#1e3a5f", fontWeight: 700 }}
+                  leftSection={<IconHeadphones size={16} />}
+                  style={{ color: "#1e3a5f", fontWeight: 800 }}
                 >
                   Área de Ensaios
                 </Button>
@@ -121,7 +123,7 @@ export async function Header() {
                   color="gray.2"
                   size="xs"
                   radius="md"
-                  leftSection={<IconLogout size={15} />}
+                  leftSection={<IconLogout size={14} />}
                 >
                   Sair
                 </Button>
@@ -134,10 +136,14 @@ export async function Header() {
                 color="yellow.6"
                 size="sm"
                 radius="md"
-                leftSection={<IconUser size={16} />}
-                style={{ color: "#1e3a5f", fontWeight: 700 }}
+                leftSection={<IconHeadphones size={16} />}
+                style={{
+                  color: "#1e3a5f",
+                  fontWeight: 800,
+                  boxShadow: "0 4px 14px rgba(201, 162, 39, 0.4)",
+                }}
               >
-                Área do Aluno
+                Área de Ensaios
               </Button>
             )}
           </Group>
