@@ -37,12 +37,14 @@ COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/.next ./.next
 COPY --from=builder /app/prisma ./prisma
 COPY --from=builder /app/scripts ./scripts
+COPY --from=builder /app/docker-entrypoint.sh ./docker-entrypoint.sh
 
-# Permissões para gravação do banco SQLite
-RUN chown -R nextjs:nodejs /app/prisma
+# Permissões para gravação do banco SQLite e execução do entrypoint
+RUN chmod +x /app/docker-entrypoint.sh && chown -R nextjs:nodejs /app/prisma
 
 USER nextjs
 
 EXPOSE 3000
 
+ENTRYPOINT ["/app/docker-entrypoint.sh"]
 CMD ["npm", "start"]
