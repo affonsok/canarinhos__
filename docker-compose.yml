@@ -1,0 +1,17 @@
+version: "3.8"
+
+services:
+  canarinhos:
+    build: .
+    container_name: canarinhos-app
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      - DATABASE_URL=file:/app/prisma/dev.db
+      - NEXTAUTH_SECRET=canarinhos-prod-secret-change-this
+      - NEXTAUTH_URL=https://seu-dominio.com.br
+      - NODE_ENV=production
+    volumes:
+      - ./prisma:/app/prisma
+      - ./public/materials:/app/public/materials
