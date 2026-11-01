@@ -25,7 +25,7 @@ export function PwaInstallPrompt() {
   const [isStandalone, setIsStandalone] = useState(false);
   const [isIos, setIsIos] = useState(false);
   const [showIosGuide, setShowIosGuide] = useState(false);
-  const [dismissed, setDismissed] = useState(true); // default true until client check
+  const [dismissed, setDismissed] = useState(false);
   const [installedSuccess, setInstalledSuccess] = useState(false);
 
   useEffect(() => {
@@ -35,8 +35,12 @@ export function PwaInstallPrompt() {
         window.matchMedia("(display-mode: standalone)").matches ||
         (window.navigator as unknown as { standalone?: boolean }).standalone === true ||
         document.referrer.includes("android-app://");
-      setIsStandalone(Boolean(isStandaloneMode));
-      return Boolean(isStandaloneMode);
+      if (isStandaloneMode) {
+        setIsStandalone(true);
+        setDismissed(true);
+        return true;
+      }
+      return false;
     };
 
     if (checkStandalone()) {

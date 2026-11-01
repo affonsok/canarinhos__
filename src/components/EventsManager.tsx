@@ -3,7 +3,6 @@
 import { useState } from "react";
 import Link from "next/link";
 import {
-  Paper,
   Title,
   Text,
   Group,
@@ -15,19 +14,20 @@ import {
   MultiSelect,
   Stack,
   Card,
-  ThemeIcon,
-  Box,
   Divider,
+  ActionIcon,
+  Tooltip,
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import {
   IconCalendarEvent,
   IconMapPin,
-  IconMusic,
   IconPlus,
   IconClock,
-  IconCheck,
-  IconHeadphones,
+  IconEdit,
+  IconTrash,
+  IconPlayerPlay,
+  IconFileText,
 } from "@tabler/icons-react";
 import type { Material } from "./types";
 
@@ -54,6 +54,7 @@ export function EventsManager({
 }) {
   const [events, setEvents] = useState<EventItem[]>(initialEvents);
   const [opened, { open, close }] = useDisclosure(false);
+  const [editingEvent, setEditingEvent] = useState<EventItem | null>(null);
 
   // Campos do formulário
   const [title, setTitle] = useState("");
@@ -72,7 +73,38 @@ export function EventsManager({
     })`,
   }));
 
-  async function handleCreateEvent(e: React.FormEvent) {
+  function handleOpenCreate() {
+    setEditingEvent(null);
+    setTitle("");
+    setEventDate("");
+    setLocation("");
+    setDescription("");
+    setSelectedMaterialIds([]);
+    setError(null);
+    open();
+  }
+
+  function handleOpenEdit(evt: EventItem) {
+    setEditingEvent(evt);
+    setTitle(evt.title);
+    // Formata a data para datetime-local (YYYY-MM-DDTHH:mm)
+    try {
+      const d = new Date(evt.eventDate);
+      const isoLocal = new Date(d.getTime() - d.getTimezoneOffset() * 60000)
+        .toISOString()
+        .slice(0, 16);
+      setEventDate(isoLocal);
+    } catch {
+      setEventDate(evt.eventDate);
+    }
+    setLocation(evt.location || "");
+    setDescription(evt.description || "");
+    setSelectedMaterialIds(evt.materials.map((m) => m.id));
+    setError(null);
+    open();
+  }
+
+  async function handleSaveEvent(e: React.FormEvent) {
     e.preventDefault();
     if (!title || !eventDate) {
       setError("Por favor, preencha o título e a data do evento.");
@@ -83,78 +115,111 @@ export function EventsManager({
     setError(null);
 
     try {
+      const isEdit = Boolean(editingEvent);
+      const method = isEdit ? "PUT" : "POST";
+      const payload: Record<string, unknown> = {
+        title,
+        description,
+        eventDate,
+        location,
+        materialIds: selectedMaterialIds,
+      };
+
+      if (isEdit) {
+        payload.id = editingEvent!.id;
+      }
+
       const res = await fetch("/api/events", {
-        method: "POST",
+        method,
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          title,
-          description,
-          eventDate,
-          location,
-          materialIds: selectedMaterialIds,
-        }),
+        body: JSON.stringify(payload),
       });
 
       if (!res.ok) {
-        throw new Error("Erro ao salvar evento");
+        const data = await res.json();
+        throw new Error(data.error || "Erro ao salvar compromisso");
       }
 
       const data = await res.json();
       if (data.ok && data.event) {
-        setEvents((prev) => [...prev, data.event]);
-        // Reset form
-        setTitle("");
-        setEventDate("");
-        setLocation("");
-        setDescription("");
-        setSelectedMaterialIds([]);
+        if (isEdit) {
+          setEvents((prev) =>
+            prev.map((item) => (item.id === data.event.id ? data.event : item))
+          );
+        } else {
+          setEvents((prev) => [...prev, data.event]);
+        }
         close();
       }
-    } catch (err: any) {
-      setError(err.message || "Falha ao registrar compromisso.");
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Falha ao registrar compromisso.";
+      setError(msg);
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function handleDeleteEvent(id: string) {
+    if (!window.confirm("Tem certeza que deseja apagar este compromisso da agenda?")) {
+      return;
+    }
+
+    try {
+      const res = await fetch(`/api/events?id=${id}`, {
+        method: "DELETE",
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || "Erro ao apagar evento");
+      }
+
+      setEvents((prev) => prev.filter((item) => item.id !== id));
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Falha ao apagar evento.";
+      alert(msg);
     }
   }
 
   return (
     <Stack gap="xl">
       {/* Barra de Ação Superior */}
-      <Group justify="space-between" align="center">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-2xl bg-white border border-slate-200/90 shadow-2xs">
         <div>
-          <Title order={3} fw={800} c="dark.8">
-            Compromissos & Apresentações do Coral
+          <Title order={3} fw={800} c="dark.8" className="text-base sm:text-lg">
+            Agenda de Compromissos & Apresentações
           </Title>
-          <Text size="sm" c="dimmed">
-            Consulte datas, locais e as músicas programadas para cada concerto ou missa
+          <Text size="xs" c="dimmed" mt={2}>
+            Painel exclusivo do regente para criar, alterar e apagar compromissos do coral.
           </Text>
         </div>
 
         <Button
-          onClick={open}
+          onClick={handleOpenCreate}
           color="canarinhosBlue"
           leftSection={<IconPlus size={16} />}
           radius="md"
+          className="bg-[#0c1e38] hover:bg-[#162c4a] shadow-xs self-start sm:self-auto min-h-[44px]"
         >
           Novo Compromisso
         </Button>
-      </Group>
+      </div>
 
       {/* Lista de Eventos */}
       {events.length === 0 ? (
-        <Paper withBorder p={40} radius="md" ta="center" bg="white">
-          <ThemeIcon size={48} radius="xl" color="gray" variant="light" mb="md">
+        <div className="p-8 sm:p-12 rounded-2xl bg-white border border-slate-200/90 text-center shadow-2xs">
+          <div className="w-12 h-12 rounded-xl bg-slate-100 text-slate-400 mx-auto flex items-center justify-center mb-3">
             <IconCalendarEvent size={24} />
-          </ThemeIcon>
-          <Text fw={600} size="md" c="dark.7">
+          </div>
+          <Text fw={700} size="sm" c="dark.7">
             Nenhum compromisso agendado
           </Text>
-          <Text size="sm" c="dimmed" mt={4}>
-            Clique no botão acima para adicionar um novo evento com o repertório marcado.
+          <Text size="xs" c="dimmed" mt={4}>
+            Clique no botão acima para adicionar um novo compromisso com as músicas marcadas.
           </Text>
-        </Paper>
+        </div>
       ) : (
-        <Stack gap="lg">
+        <Stack gap="md">
           {events.map((evt) => {
             const dateObj = new Date(evt.eventDate);
             const dateFormatted = dateObj.toLocaleDateString("pt-BR", {
@@ -170,39 +235,65 @@ export function EventsManager({
             return (
               <Card
                 key={evt.id}
-                withBorder
-                shadow="xs"
                 padding="lg"
                 radius="md"
                 bg="white"
-                className="rounded-2xl border border-slate-200/90 shadow-2xs"
+                className="rounded-2xl border border-slate-200/90 shadow-2xs hover:border-slate-300 transition-all"
               >
                 <Stack gap="sm">
-                  {/* Topo do Card */}
+                  {/* Topo do Card com Data, Local e Botões Editar / Excluir */}
                   <Group justify="space-between" align="flex-start" wrap="wrap">
                     <div>
-                      <Badge
-                        color="yellow.7"
-                        variant="filled"
-                        size="md"
-                        mb={6}
-                        style={{ color: "#1e3a5f", textTransform: "capitalize" }}
-                      >
-                        {dateFormatted} às {timeFormatted}
-                      </Badge>
-                      <Title order={3} fw={800} c="canarinhosBlue.7">
+                      <div className="flex items-center gap-2 mb-1.5 flex-wrap">
+                        <Badge
+                          color="yellow.7"
+                          variant="filled"
+                          size="md"
+                          style={{ color: "#1e3a5f", textTransform: "capitalize" }}
+                        >
+                          {dateFormatted} às {timeFormatted}
+                        </Badge>
+
+                        {evt.location && (
+                          <div className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-slate-100 text-slate-700 text-xs font-semibold">
+                            <IconMapPin size={13} className="text-[#1e3a5f]" />
+                            <span>{evt.location}</span>
+                          </div>
+                        )}
+                      </div>
+
+                      <Title order={3} fw={800} c="canarinhosBlue.7" className="text-base sm:text-lg">
                         {evt.title}
                       </Title>
                     </div>
 
-                    {evt.location && (
-                      <Group gap={6} c="dimmed" style={{ backgroundColor: "#f1f5f9", padding: "6px 12px", borderRadius: "8px" }}>
-                        <IconMapPin size={16} color="#1e3a5f" />
-                        <Text size="xs" fw={600} c="dark.7">
-                          {evt.location}
-                        </Text>
-                      </Group>
-                    )}
+                    <Group gap="xs">
+                      <Tooltip label="Editar este compromisso">
+                        <ActionIcon
+                          variant="light"
+                          color="blue"
+                          size="lg"
+                          radius="md"
+                          onClick={() => handleOpenEdit(evt)}
+                          aria-label="Editar compromisso"
+                        >
+                          <IconEdit size={16} />
+                        </ActionIcon>
+                      </Tooltip>
+
+                      <Tooltip label="Apagar este compromisso">
+                        <ActionIcon
+                          variant="light"
+                          color="red"
+                          size="lg"
+                          radius="md"
+                          onClick={() => handleDeleteEvent(evt.id)}
+                          aria-label="Apagar compromisso"
+                        >
+                          <IconTrash size={16} />
+                        </ActionIcon>
+                      </Tooltip>
+                    </Group>
                   </Group>
 
                   {/* Descrição / Orientações */}
@@ -216,14 +307,11 @@ export function EventsManager({
 
                   {/* Repertório Marcado para o Evento */}
                   <div>
-                    <Group gap="xs" mb="xs">
-                      <ThemeIcon size={24} radius="sm" color="canarinhosGold" variant="light">
-                        <IconMusic size={14} color="#856412" />
-                      </ThemeIcon>
-                      <Text fw={700} size="sm" c="canarinhosBlue.7">
-                        Repertório Selecionado ({evt.materials?.length || 0} músicas):
-                      </Text>
-                    </Group>
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="text-xs font-bold text-slate-800">
+                        Repertório Convocado ({evt.materials?.length || 0} faixas):
+                      </span>
+                    </div>
 
                     {!evt.materials || evt.materials.length === 0 ? (
                       <Text size="xs" c="dimmed">
@@ -238,9 +326,15 @@ export function EventsManager({
                             href={`/ensaios/material/${m.id}`}
                             variant="light"
                             color={m.type === "score" ? "orange" : "blue"}
-                            size="lg"
+                            size="md"
                             radius="md"
-                            leftSection={<IconHeadphones size={13} />}
+                            leftSection={
+                              m.type === "score" ? (
+                                <IconFileText size={12} />
+                              ) : (
+                                <IconPlayerPlay size={12} />
+                              )
+                            }
                             style={{
                               cursor: "pointer",
                               textDecoration: "none",
@@ -260,7 +354,7 @@ export function EventsManager({
         </Stack>
       )}
 
-      {/* Modal de Cadastro de Novo Evento */}
+      {/* Modal de Criação / Edição de Evento */}
       <Modal
         opened={opened}
         onClose={close}
@@ -268,82 +362,74 @@ export function EventsManager({
           <Group gap="xs">
             <IconCalendarEvent size={20} color="#1e3a5f" />
             <Text fw={700} size="md">
-              Adicionar Novo Compromisso do Coro
+              {editingEvent ? "Alterar Compromisso do Coral" : "Novo Compromisso do Coral"}
             </Text>
           </Group>
         }
         size="lg"
         radius="md"
       >
-        <form onSubmit={handleCreateEvent}>
+        <form onSubmit={handleSaveEvent}>
           <Stack gap="md">
             {error && (
-              <Text c="red" size="sm">
+              <Text size="sm" c="red" fw={600}>
                 {error}
               </Text>
             )}
 
             <TextInput
-              label="Nome do Evento / Celebração"
-              placeholder="Ex: Missa Solene de Maio, Concerto de Páscoa..."
-              required
+              label="Título do Compromisso"
+              placeholder="Ex: Missa Solene de Maio / Ensaio Geral"
               value={title}
-              onChange={(e) => setTitle(e.currentTarget.value)}
-              radius="md"
+              onChange={(e) => setTitle(e.target.value)}
+              required
             />
 
-            <Group grow>
-              <TextInput
-                label="Data e Hora"
-                type="datetime-local"
-                required
-                value={eventDate}
-                onChange={(e) => setEventDate(e.currentTarget.value)}
-                radius="md"
-              />
+            <TextInput
+              label="Data e Horário"
+              type="datetime-local"
+              value={eventDate}
+              onChange={(e) => setEventDate(e.target.value)}
+              required
+            />
 
-              <TextInput
-                label="Local"
-                placeholder="Ex: Igreja Matriz, Teatro Positivo..."
-                value={location}
-                onChange={(e) => setLocation(e.currentTarget.value)}
-                radius="md"
-              />
-            </Group>
+            <TextInput
+              label="Local da Apresentação / Ensaio"
+              placeholder="Ex: Paróquia São Sebastião - Centro"
+              leftSection={<IconMapPin size={16} />}
+              value={location}
+              onChange={(e) => setLocation(e.target.value)}
+            />
 
             <Textarea
-              label="Instruções e Lembretes (Traje, Chegada)"
-              placeholder="Ex: Chegar com 40 min de antecedência para aquecimento vocal. Traje de gala..."
+              label="Orientações e Traje"
+              placeholder="Ex: Chegar com 30min de antecedência para aquecimento vocal. Traje oficial de gala."
               value={description}
-              onChange={(e) => setDescription(e.currentTarget.value)}
-              radius="md"
-              rows={3}
+              onChange={(e) => setDescription(e.target.value)}
+              minRows={3}
             />
 
             <MultiSelect
-              label="Músicas que serão cantadas neste evento"
-              placeholder="Selecione as músicas do repertório..."
+              label="Músicas do Repertório a Cantar"
+              placeholder="Selecione as músicas e partituras deste evento"
               data={materialOptions}
               value={selectedMaterialIds}
               onChange={setSelectedMaterialIds}
               searchable
               clearable
-              radius="md"
-              nothingFoundMessage="Nenhuma música encontrada"
             />
 
             <Group justify="flex-end" mt="md">
-              <Button variant="default" onClick={close} radius="md">
+              <Button variant="default" onClick={close}>
                 Cancelar
               </Button>
               <Button
                 type="submit"
                 color="canarinhosBlue"
                 loading={loading}
-                radius="md"
-                leftSection={<IconCheck size={16} />}
+                className="bg-[#0c1e38] hover:bg-[#162c4a]"
               >
-                Salvar Compromisso
+                {editingEvent ? "Salvar Alterações" : "Criar Compromisso"}
               </Button>
             </Group>
           </Stack>

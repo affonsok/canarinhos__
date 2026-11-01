@@ -10,13 +10,16 @@ import { prisma } from "@/lib/prisma";
 
 export default async function EnsaiosPage() {
   const session = await getServerSession(authOptions);
+
   if (!session?.user?.email && !session?.user?.name) {
     redirect("/login");
   }
 
-  // 1. Carrega materiais com seus grupos/músicas
+  // 1. Carrega todos os materiais e grupos
   const dbMaterials = await prisma.material.findMany({
-    include: { group: true },
+    include: {
+      group: true,
+    },
     orderBy: { uploadedAt: "desc" },
   });
   const materials: Material[] = dbMaterials.map((m) => ({
@@ -38,7 +41,7 @@ export default async function EnsaiosPage() {
       : null,
   }));
 
-  // 2. Carrega avisos
+  // 2. Carrega avisos públicos
   const dbAnnouncements = await prisma.announcement.findMany({
     orderBy: { createdAt: "desc" },
     take: 4,
@@ -62,6 +65,8 @@ export default async function EnsaiosPage() {
       ],
     },
   });
+
+  const isAdmin = currentUser?.role === "admin" || session.user.role === "admin";
 
   let stats: PracticeStats = {
     totalSessions: 0,
@@ -92,115 +97,123 @@ export default async function EnsaiosPage() {
     };
   }
 
-  // 4. Carrega ranking dos cantores
-  const allUsers = await prisma.user.findMany({
-    include: {
-      practiceLogs: true,
-    },
-  });
+  // 4. Carrega ranking SOMENTE se for admin/regente
+  let ranking: RankingUser[] = [];
+  if (isAdmin) {
+    const allUsers = await prisma.user.findMany({
+      include: {
+        practiceLogs: true,
+      },
+    });
 
-  const now = new Date();
-  const oneWeekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+    const now = new Date();
+    const oneWeekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
 
-  const ranking: RankingUser[] = allUsers
-    .map((u) => {
-      const totalSessions = u.practiceLogs.length;
-      const weekSessions = u.practiceLogs.filter(
-        (log) => new Date(log.timestamp) >= oneWeekAgo
-      ).length;
-      const totalMinutes = Math.round(
-        u.practiceLogs.reduce((acc, log) => acc + (log.duration || 120), 0) / 60
-      );
-      const lastLog = u.practiceLogs.sort(
-        (a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
-      )[0];
+    ranking = allUsers
+      .map((u) => {
+        const totalSessions = u.practiceLogs.length;
+        const weekSessions = u.practiceLogs.filter(
+          (log) => new Date(log.timestamp) >= oneWeekAgo
+        ).length;
+        const totalMinutes = Math.round(
+          u.practiceLogs.reduce((acc, log) => acc + (log.duration || 120), 0) / 60
+        );
+        const lastLog = u.practiceLogs.sort(
+          (a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+        )[0];
 
-      return {
-        id: u.id,
-        name: u.name,
-        voicePart: u.voicePart || "Tutti",
-        totalSessions,
-        weekSessions,
-        totalMinutes,
-        lastPracticeAt: lastLog ? lastLog.timestamp.toISOString() : null,
-        rank: 0,
-        medal: "",
-      };
-    })
-    .sort((a, b) => {
-      if (b.weekSessions !== a.weekSessions) {
-        return b.weekSessions - a.weekSessions;
-      }
-      return b.totalSessions - a.totalSessions;
-    })
-    .map((item, index) => ({
-      ...item,
-      rank: index + 1,
-      medal:
-        index === 0
-          ? "Ouro"
-          : index === 1
-            ? "Prata"
-            : index === 2
-              ? "Bronze"
-              : "Participante",
-    }));
+        return {
+          id: u.id,
+          name: u.name,
+          email: u.email,
+          voicePart: u.voicePart || "Tutti",
+          totalSessions,
+          weekSessions,
+          totalMinutes,
+          lastPracticeAt: lastLog ? lastLog.timestamp.toISOString() : null,
+        };
+      })
+      .sort((a, b) => {
+        if (b.weekSessions !== a.weekSessions) {
+          return b.weekSessions - a.weekSessions;
+        }
+        return b.totalSessions - a.totalSessions;
+      })
+      .map((item, index) => ({
+        ...item,
+        rank: index + 1,
+        medal:
+          index === 0
+            ? "Ouro"
+            : index === 1
+              ? "Prata"
+              : index === 2
+                ? "Bronze"
+                : "Participante",
+      }));
+  }
 
-  // 5. Carrega eventos com repertório conectado
-  const dbEvents = await prisma.event.findMany({
-    include: {
-      materials: {
-        select: {
-          id: true,
-          title: true,
-          type: true,
-          voicePart: true,
+  // 5. Carrega agenda de eventos SOMENTE se for admin/regente
+  let events: EventItem[] = [];
+  if (isAdmin) {
+    const dbEvents = await prisma.event.findMany({
+      include: {
+        materials: {
+          select: {
+            id: true,
+            title: true,
+            type: true,
+            voicePart: true,
+          },
         },
       },
-    },
-    orderBy: {
-      eventDate: "asc",
-    },
-  });
-
-  const events: EventItem[] = dbEvents.map((evt) => ({
-    id: evt.id,
-    title: evt.title,
-    description: evt.description,
-    eventDate: evt.eventDate.toISOString(),
-    location: evt.location,
-    materials: evt.materials,
-  }));
-
-  // 6. Carrega alunos cadastrados para o CRUD
-  const allStudents = await prisma.user.findMany({
-    select: {
-      id: true,
-      name: true,
-      username: true,
-      email: true,
-      voicePart: true,
-      role: true,
-      createdAt: true,
-      _count: {
-        select: { practiceLogs: true },
+      orderBy: {
+        eventDate: "asc",
       },
-    },
-    orderBy: {
-      name: "asc",
-    },
-  });
+    });
 
-  const students: StudentItem[] = allStudents.map((s) => ({
-    id: s.id,
-    name: s.name,
-    username: s.username || s.email?.split("@")[0] || "aluno",
-    email: s.email,
-    voicePart: s.voicePart || "Tutti",
-    role: s.role,
-    createdAt: s.createdAt.toISOString(),
-    totalSessions: s._count.practiceLogs,
-  }));
+    events = dbEvents.map((evt) => ({
+      id: evt.id,
+      title: evt.title,
+      description: evt.description,
+      eventDate: evt.eventDate.toISOString(),
+      location: evt.location,
+      materials: evt.materials,
+    }));
+  }
+
+  // 6. Carrega alunos cadastrados SOMENTE se for admin/regente
+  let students: StudentItem[] = [];
+  if (isAdmin) {
+    const allStudents = await prisma.user.findMany({
+      select: {
+        id: true,
+        name: true,
+        username: true,
+        email: true,
+        voicePart: true,
+        role: true,
+        createdAt: true,
+        _count: {
+          select: { practiceLogs: true },
+        },
+      },
+      orderBy: {
+        name: "asc",
+      },
+    });
+
+    students = allStudents.map((s) => ({
+      id: s.id,
+      name: s.name,
+      username: s.username || s.email?.split("@")[0] || "aluno",
+      email: s.email,
+      voicePart: s.voicePart || "Tutti",
+      role: s.role,
+      createdAt: s.createdAt.toISOString(),
+      totalSessions: s._count.practiceLogs,
+    }));
+  }
 
   return (
     <EnsaiosDashboard
@@ -208,6 +221,7 @@ export default async function EnsaiosPage() {
         name: currentUser?.name || session.user.name,
         email: currentUser?.username || session.user.email,
         voicePart: currentUser?.voicePart || null,
+        role: isAdmin ? "admin" : "member",
       }}
       stats={stats}
       materials={materials}
@@ -215,6 +229,7 @@ export default async function EnsaiosPage() {
       ranking={ranking}
       events={events}
       students={students}
+      isAdmin={isAdmin}
     />
   );
 }

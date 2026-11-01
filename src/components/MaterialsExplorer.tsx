@@ -419,7 +419,7 @@ export function MaterialsExplorer({
       {filteredWorks.length === 0 ? (
         <div className="p-8 sm:p-12 rounded-2xl bg-white border border-slate-200/90 text-center shadow-2xs">
           <div className="w-12 h-12 rounded-xl bg-slate-100 text-slate-400 mx-auto flex items-center justify-center mb-3">
-            <IconMusic size={24} />
+            <IconMicrophone size={24} />
           </div>
           <h3 className="text-sm font-bold text-slate-900">
             Nenhuma obra encontrada para estes filtros

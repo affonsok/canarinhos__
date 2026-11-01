@@ -1,10 +1,24 @@
 import { NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
 import { prisma } from "@/lib/prisma";
+import { authOptions } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
 
 export async function GET() {
   try {
+    const session = await getServerSession(authOptions);
+    if (!session?.user) {
+      return NextResponse.json({ error: "Não autenticado" }, { status: 401 });
+    }
+
+    if (session.user.role !== "admin") {
+      return NextResponse.json(
+        { error: "Acesso restrito ao regente administrador" },
+        { status: 403 }
+      );
+    }
+
     const users = await prisma.user.findMany({
       include: {
         practiceLogs: true,
@@ -40,7 +54,6 @@ export async function GET() {
         };
       })
       .sort((a, b) => {
-        // Ordena por ensaios na semana, depois total
         if (b.weekSessions !== a.weekSessions) {
           return b.weekSessions - a.weekSessions;
         }

@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
+import { authOptions } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
 
@@ -12,9 +14,17 @@ function sanitizeUsername(input: string): string {
     .replace(/[^a-z0-9]/g, "");
 }
 
-// GET: Lista todos os alunos/usuários
+// GET: Lista todos os alunos/usuários (Apenas Admin)
 export async function GET() {
   try {
+    const session = await getServerSession(authOptions);
+    if (!session?.user || session.user.role !== "admin") {
+      return NextResponse.json(
+        { error: "Acesso restrito ao regente administrador" },
+        { status: 403 }
+      );
+    }
+
     const students = await prisma.user.findMany({
       select: {
         id: true,
@@ -54,9 +64,19 @@ export async function GET() {
   }
 }
 
-// POST: Cadastra novo aluno
+// POST: Cadastra novo aluno (Apenas Admin ou Auto-cadastro no login sem privilégios)
 export async function POST(request: Request) {
   try {
+    const session = await getServerSession(authOptions);
+
+    // Se o usuário já estiver logado mas NÃO for admin, proíbe cadastro
+    if (session?.user && session.user.role !== "admin") {
+      return NextResponse.json(
+        { error: "Acesso restrito: alunos não têm permissão para cadastrar outros usuários" },
+        { status: 403 }
+      );
+    }
+
     const body = await request.json();
     const { name, username, password, voicePart, role } = body;
 
@@ -97,6 +117,9 @@ export async function POST(request: Request) {
 
     const passwordHash = await bcrypt.hash(password, 10);
 
+    // Se não for admin, força role 'member'
+    const finalRole = session?.user?.role === "admin" && role ? role : "member";
+
     const newStudent = await prisma.user.create({
       data: {
         name: name.trim(),
@@ -104,7 +127,7 @@ export async function POST(request: Request) {
         email: `${cleanUsername}@canarinhos.local`,
         passwordHash,
         voicePart: voicePart || "soprano",
-        role: role || "member",
+        role: finalRole,
       },
     });
 
@@ -130,9 +153,17 @@ export async function POST(request: Request) {
   }
 }
 
-// PUT: Atualiza aluno existente
+// PUT: Atualiza aluno existente (Apenas Admin)
 export async function PUT(request: Request) {
   try {
+    const session = await getServerSession(authOptions);
+    if (!session?.user || session.user.role !== "admin") {
+      return NextResponse.json(
+        { error: "Acesso restrito ao regente administrador" },
+        { status: 403 }
+      );
+    }
+
     const body = await request.json();
     const { id, name, username, password, voicePart, role } = body;
 
@@ -201,9 +232,17 @@ export async function PUT(request: Request) {
   }
 }
 
-// DELETE: Remove aluno
+// DELETE: Remove aluno (Apenas Admin)
 export async function DELETE(request: Request) {
   try {
+    const session = await getServerSession(authOptions);
+    if (!session?.user || session.user.role !== "admin") {
+      return NextResponse.json(
+        { error: "Acesso restrito ao regente administrador" },
+        { status: 403 }
+      );
+    }
+
     const { searchParams } = new URL(request.url);
     const id = searchParams.get("id");
 

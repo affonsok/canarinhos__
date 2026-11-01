@@ -23,12 +23,14 @@ interface BentoHeroCockpitProps {
     name?: string | null;
     email?: string | null;
     voicePart?: string | null;
+    role?: string;
   };
   stats: PracticeStats;
   nextEvent?: EventItem;
   announcements: Announcement[];
   ranking: RankingUser[];
   onQuickFilterVoice?: (voice: string) => void;
+  isAdmin?: boolean;
 }
 
 export function BentoHeroCockpit({
@@ -38,6 +40,7 @@ export function BentoHeroCockpit({
   announcements,
   ranking,
   onQuickFilterVoice,
+  isAdmin = false,
 }: BentoHeroCockpitProps) {
   const userVoice = user.voicePart ? user.voicePart.toLowerCase() : "geral";
   const voiceConfig = VOICE_COLORS[userVoice] || {
@@ -46,7 +49,7 @@ export function BentoHeroCockpit({
     badge: "",
   };
 
-  // Encontra a posição do usuário no ranking
+  // Encontra dados do ranking se for admin
   const userRankData = ranking.find(
     (r) =>
       r.name.toLowerCase() === (user.name || "").toLowerCase() ||
@@ -55,7 +58,7 @@ export function BentoHeroCockpit({
 
   const primaryAnnouncement = announcements[0];
 
-  // Identifica a primeira música da voz do usuário no próximo evento
+  // Identifica a primeira música da voz do usuário no próximo evento (apenas admin)
   const userVoiceMaterialInEvent = nextEvent?.materials.find((m) => {
     if (m.type !== "audio") return false;
     const v = m.voicePart?.toLowerCase() || "";
@@ -70,7 +73,7 @@ export function BentoHeroCockpit({
         {/* BLOCO HERO PRINCIPAL (8 Colunas): O CENTRO DE GRAVIDADE DO CORAL */}
         {/* ============================================================== */}
         <div className="lg:col-span-8 flex flex-col justify-between p-5 md:p-6 rounded-2xl bg-[#0c1e38] text-white border border-[#1e3a5f] shadow-sm relative overflow-hidden">
-          {/* Elemento gráfico de fundo sutil (grid de partitura/ondas sem clichês de IA) */}
+          {/* Elemento gráfico de fundo sutil */}
           <div
             className="absolute inset-0 opacity-[0.04] pointer-events-none"
             style={{
@@ -87,9 +90,9 @@ export function BentoHeroCockpit({
               <div className="flex items-center gap-2">
                 <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold tracking-wider uppercase bg-[#c9a227]/20 text-[#fde047] border border-[#c9a227]/30">
                   <span className="w-1.5 h-1.5 rounded-full bg-[#fde047] animate-pulse" />
-                  Próximo Compromisso do Coro
+                  {isAdmin ? "Painel de Regência & Compromissos" : "Área de Ensaios Vocais"}
                 </span>
-                {nextEvent && (
+                {isAdmin && nextEvent && (
                   <span className="text-xs text-slate-300 font-medium hidden sm:inline">
                     {new Date(nextEvent.eventDate).toLocaleDateString("pt-BR", {
                       weekday: "short",
@@ -110,19 +113,21 @@ export function BentoHeroCockpit({
               )}
             </div>
 
-            {/* Título de Impacto: O Evento */}
+            {/* Título de Impacto */}
             <h2 className="text-xl sm:text-2xl lg:text-[26px] font-extrabold tracking-tight text-white leading-snug mb-1.5">
-              {nextEvent ? nextEvent.title : "Temporada Coral Canarinhos 2026"}
+              {isAdmin && nextEvent
+                ? nextEvent.title
+                : "Temporada Coral Canarinhos 2026"}
             </h2>
 
-            {nextEvent?.description && (
-              <p className="text-xs sm:text-sm text-slate-300 line-clamp-2 max-w-2xl mb-4 leading-relaxed">
-                {nextEvent.description}
-              </p>
-            )}
+            <p className="text-xs sm:text-sm text-slate-300 line-clamp-2 max-w-2xl mb-4 leading-relaxed">
+              {isAdmin && nextEvent?.description
+                ? nextEvent.description
+                : "Selecione o seu naipe vocal para ouvir as faixas isoladas, praticar as melodias e visualizar as partituras em PDF."}
+            </p>
 
-            {/* Metadados de Local e Horário */}
-            {nextEvent && (
+            {/* Metadados de Local e Horário (Apenas Admin) */}
+            {isAdmin && nextEvent && (
               <div className="flex flex-wrap items-center gap-4 text-xs text-slate-300 mb-5">
                 {nextEvent.location && (
                   <div className="flex items-center gap-1.5">
@@ -149,8 +154,8 @@ export function BentoHeroCockpit({
               </div>
             )}
 
-            {/* Músicas Convocadas no Evento com acesso direto */}
-            {nextEvent && nextEvent.materials.length > 0 && (
+            {/* Músicas Convocadas no Evento (Apenas Admin) */}
+            {isAdmin && nextEvent && nextEvent.materials.length > 0 && (
               <div className="bg-white/5 border border-white/10 rounded-xl p-3 mb-4 backdrop-blur-sm">
                 <p className="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-2">
                   Obras em ensaio prioritário para esta celebração:
@@ -184,57 +189,37 @@ export function BentoHeroCockpit({
           {/* Barra de Ação de Impacto */}
           <div className="relative z-10 pt-2 flex flex-wrap items-center justify-between gap-3 border-t border-white/10">
             <div className="text-xs text-slate-300">
-              Cantor conectado:{" "}
+              {isAdmin ? "Regente Conectado: " : "Cantor Conectado: "}
               <strong className="text-white font-semibold">
                 {user.name || user.email}
               </strong>
             </div>
 
             <div className="w-full sm:w-auto flex items-center gap-2">
-              {userVoiceMaterialInEvent ? (
-                <Button
-                  component={Link}
-                  href={`/ensaios/material/${userVoiceMaterialInEvent.id}`}
-                  size="md"
-                  radius="xl"
-                  color="yellow.6"
-                  fullWidth
-                  leftSection={<IconPlayerPlay size={16} />}
-                  style={{
-                    backgroundColor: "#c9a227",
-                    color: "#0c1e38",
-                    fontWeight: 900,
-                    height: "46px",
-                  }}
-                  className="w-full sm:w-auto shadow-sm hover:brightness-110 transition-all text-xs sm:text-sm"
-                >
-                  Treinar Minha Voz Agora
-                </Button>
-              ) : (
-                <Button
-                  component={Link}
-                  href="#repertorio"
-                  size="md"
-                  radius="xl"
-                  color="yellow.6"
-                  fullWidth
-                  style={{
-                    backgroundColor: "#c9a227",
-                    color: "#0c1e38",
-                    fontWeight: 900,
-                    height: "46px",
-                  }}
-                  className="w-full sm:w-auto shadow-sm text-xs sm:text-sm"
-                >
-                  Abrir Acervo de Obras
-                </Button>
-              )}
+              <Button
+                component={Link}
+                href="#repertorio"
+                size="md"
+                radius="xl"
+                color="yellow.6"
+                fullWidth
+                leftSection={<IconPlayerPlay size={16} />}
+                style={{
+                  backgroundColor: "#c9a227",
+                  color: "#0c1e38",
+                  fontWeight: 900,
+                  height: "46px",
+                }}
+                className="w-full sm:w-auto shadow-sm hover:brightness-110 transition-all text-xs sm:text-sm"
+              >
+                {isAdmin ? "Explorar Repertório Geral" : "Treinar Meu Naipe Agora"}
+              </Button>
             </div>
           </div>
         </div>
 
         {/* ============================================================== */}
-        {/* BLOCO 2 (4 Colunas): PASSAPORTE VOCAL DO ALUNO & RANKING       */}
+        {/* BLOCO 2 (4 Colunas): PASSAPORTE VOCAL DO ALUNO / REGÊNCIA      */}
         {/* ============================================================== */}
         <div className="lg:col-span-4 flex flex-col justify-between p-5 md:p-6 rounded-2xl bg-white border border-slate-200/90 shadow-sm">
           <div>
@@ -249,7 +234,7 @@ export function BentoHeroCockpit({
                     {user.name || "Aluno Canarinhos"}
                   </h3>
                   <p className="text-[11px] text-slate-500 font-medium">
-                    Cantor(a) Registrado(a)
+                    {isAdmin ? "Regente / Administrador" : "Coralista Canarinhos"}
                   </p>
                 </div>
               </div>
@@ -286,14 +271,14 @@ export function BentoHeroCockpit({
 
               <div className="p-3 rounded-xl bg-slate-50 border border-slate-100">
                 <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 block mb-0.5">
-                  Posição no Coro
+                  {isAdmin ? "Posição no Coro" : "Total de Treinos"}
                 </span>
                 <div className="flex items-baseline gap-1">
                   <span className="text-2xl font-black text-[#c9a227] leading-none">
-                    #{userRankData?.rank || 1}
+                    {isAdmin ? `#${userRankData?.rank || 1}` : stats.totalSessions}
                   </span>
                   <span className="text-[11px] text-slate-500 font-medium">
-                    lugar
+                    {isAdmin ? "lugar" : "sessões"}
                   </span>
                 </div>
               </div>
@@ -303,13 +288,15 @@ export function BentoHeroCockpit({
             <div className="p-3 rounded-xl bg-amber-50/60 border border-amber-200/60 mb-4">
               <div className="flex items-center gap-2 mb-1">
                 <span className="text-xs font-bold text-slate-900">
-                  {userRankData?.medal || "Dedicado"} • {userRankData?.totalMinutes || 0} min praticados
+                  {isAdmin
+                    ? `${userRankData?.medal || "Dedicado"} • ${userRankData?.totalMinutes || 0} min praticados`
+                    : "Ritmo de Prática Vocal"}
                 </span>
               </div>
               <p className="text-[11px] text-slate-600 leading-normal">
                 {stats.weekSessions >= 3
                   ? "Parabéns! Excelente ritmo de treino para os próximos cantos."
-                  : "Mantenha o hábito de escutar seu naipe ao menos 10 minutos por dia."}
+                  : "Mantenha o hábito de escutar seu naipe ao menos 10 minutos por dia para fixar as melodias."}
               </p>
             </div>
           </div>
