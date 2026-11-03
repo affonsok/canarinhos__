@@ -62,6 +62,26 @@ const KNOWN_WORKS: Record<string, WorkMeta> = {
     subtitle: "Ariel Ramírez • Navidad Nuestra",
     category: "natal",
   },
+  "natal-2026-carol-of-the-bells": {
+    cleanTitle: "Carol of the Bells",
+    subtitle: "Mykola Leontovych • Especial de Natal 2026",
+    category: "natal",
+  },
+  "natal-2026-sing-we-now-of-christmas": {
+    cleanTitle: "Sing We Now of Christmas",
+    subtitle: "Tradicional Francês de Natal",
+    category: "natal",
+  },
+  "natal-2026-batuque-natalino": {
+    cleanTitle: "Batuque Natalino",
+    subtitle: "Especial de Natal 2026",
+    category: "natal",
+  },
+  "natal-2026-oh-happy-day-bis": {
+    cleanTitle: "Oh, Happy Day",
+    subtitle: "Edwin Hawkins • Especial de Natal 2026",
+    category: "natal",
+  },
 
   // Missas: Missa de Agosto
   "missa-agosto-missa-simplex-kyrie": {

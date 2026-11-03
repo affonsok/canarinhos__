@@ -17,7 +17,15 @@ from __future__ import annotations
 import shutil
 import unicodedata
 import re
+import sys
 from pathlib import Path
+
+# Configura stdout para UTF-8 no Windows para evitar UnicodeEncodeError com acentos e símbolos
+if hasattr(sys.stdout, "reconfigure"):
+    try:
+        sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+    except Exception:
+        pass
 
 SOURCE_DIR = Path("ensaio")
 TARGET_DIR = Path("public/materials")
@@ -99,6 +107,8 @@ def organize() -> dict[str, int]:
 
     TARGET_DIR.mkdir(parents=True, exist_ok=True)
 
+    seen_destinations: set[Path] = set()
+
     for file_path in sorted(SOURCE_DIR.rglob("*")):
         if not file_path.is_file():
             continue
@@ -116,18 +126,19 @@ def organize() -> dict[str, int]:
         dest_dir = TARGET_DIR / file_type / group_slug
         dest_path = dest_dir / clean_name
 
-        # Evita duplicatas adicionando sufixo numérico
+        # Se houver colisão de nomes distintos no mesmo lote, adiciona sufixo numérico
         counter = 1
         original_dest = dest_path
-        while dest_path.exists():
+        while dest_path in seen_destinations:
             stem = original_dest.stem
             ext = original_dest.suffix
             dest_path = dest_dir / f"{stem}-{counter}{ext}"
             counter += 1
+        seen_destinations.add(dest_path)
 
         dest_dir.mkdir(parents=True, exist_ok=True)
         shutil.copy2(file_path, dest_path)
-        print(f"[OK] {file_type}: {rel_path} → {dest_path.relative_to(TARGET_DIR)}")
+        print(f"[OK] {file_type}: {rel_path} -> {dest_path.relative_to(TARGET_DIR)}")
         stats[file_type] += 1
 
     return stats
